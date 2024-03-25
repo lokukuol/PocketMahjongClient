@@ -15,6 +15,12 @@
 
 
 
+## 测试地址
+
+http://magame.110x.com
+
+
+
 ## 麻将规则
 
 开发的规则，可参考下面的文档：[mahjongdoc](https://github.com/openpokergame/MahjongRules)
