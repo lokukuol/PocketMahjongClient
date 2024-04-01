@@ -49,6 +49,8 @@ export class LoginUiMain {
 
     public loadingND: Node | null = null;
     public loginND: Node | null = null;
+    public btnNode: Node | null = null;
+
     // 各模块Ui显示层
     public uiModuleMgr: ModuleUIMgr = new ModuleUIMgr();
 
@@ -57,6 +59,7 @@ export class LoginUiMain {
 
         this.loadingND = this.root.getChildByPath("loadingND");
         this.loginND = this.root.getChildByPath("loginND");
+        this.btnNode = this.root.getChildByPath("btnNode");
 
         App.getInst(ViewMgr).addLayer(eLayer.uiModuleLayer, this.loginND);
         this.uiModuleMgr.toInit(this.loginND);
@@ -79,6 +82,7 @@ export class LoginUiMain {
         if (cacheAccount && cacheAccount.account.length > 0 && cacheAccount.token.length > 0
             && (cacheAccount.expiration === undefined || cacheAccount.expiration > TimeUtils.getServerTime())) {
             LoginUiMain.ins.loadingND.active = true;
+            this.btnNode.active = false;
 
             LoginEnity.account = cacheAccount.account;
             LoginEnity.token = cacheAccount.token;
@@ -87,11 +91,15 @@ export class LoginUiMain {
             GlobalVar.willLoadMoudle = null;
             SceneMgr.runScene("Home", false);
         } else {
-            LoginUiMain.ins.uiModuleMgr.showLoginUI("PhoneLoginPref", "LoginPhoneUI");
+            // LoginUiMain.ins.uiModuleMgr.showLoginUI("PhoneLoginPref", "LoginPhoneUI");
         }
     }
 
     public toDestroy() {
         console.log("Login main destroy");
+    }
+
+    public showPhoneLogin() {
+        LoginUiMain.ins.uiModuleMgr.showLoginUI("PhoneLoginPref", "LoginPhoneUI");
     }
 }

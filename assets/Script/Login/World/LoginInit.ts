@@ -30,9 +30,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+ import { _decorator, Node } from 'cc';
 import {LoginUiMain} from "../Ui/LoginUiMain";
 
 export class LoginInit {
+    public static btnRoot: Node | null = null;
+
     public static exe() {
         LoginUiMain.ins.toInit();
     }
@@ -40,4 +43,16 @@ export class LoginInit {
     public static toDestroy() {
         LoginUiMain.ins.toDestroy();
     }
+
+    public static showPhoneLogin(btnNode: Node) {
+        this.btnRoot = btnNode;
+        LoginUiMain.ins.showPhoneLogin();
+    }
+
+    public static hidePhoneLogin() {
+        if (this.btnRoot) {
+            this.btnRoot.active = true;
+        }
+    }
+
 }

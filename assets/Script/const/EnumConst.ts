@@ -151,3 +151,8 @@ export enum E_FAN_TYPE {
     JP_LI_BAO_PAI_SCORE = 34,                       // 里宝牌
     JP_CHI_BAO_PAI_SCORE = 33,                      // 赤宝牌
 }
+
+export enum E_LOGIN_MODE {
+    LM_CHINA,
+    LM_OVERSEA
+}

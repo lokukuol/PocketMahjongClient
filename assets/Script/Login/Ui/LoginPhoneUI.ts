@@ -44,11 +44,13 @@ import {App} from '../../Module/App';
 import {UiPopupHelper} from '../../framework/utils/UiPopupHelper';
 import {LoginCountryCodeUI} from './LoginCountryCodeUI';
 import {LoginUiMain} from './LoginUiMain';
+import { LoginInit } from '../World/LoginInit';
 
 const {ccclass, property} = _decorator;
 
 @ccclass('LoginPhoneUI')
 export class LoginPhoneUI extends Component {
+    private _closeBtn: Button = null;
     private _phoneEB: EditBox = null;
     private _phoneDelBtn: Node = null;
 
@@ -95,6 +97,7 @@ export class LoginPhoneUI extends Component {
         this._protocolButton = this.node.getChildByPath("bg/Node/ProtocolButton").getComponent(Button);
 
         this._countryCodeUI = this.node.getChildByPath("bg/CountryCodePref").getComponent(LoginCountryCodeUI);
+        this._closeBtn = this.node.getChildByPath("bg/closeBtn").getComponent(Button);
 
         this._phoneEB.node.on(EditBox.EventType.EDITING_DID_ENDED, this._onPhoneEditEnd, this);
         this._phoneDelBtn.on(Node.EventType.TOUCH_END, this._onPhoneDelTouch, this);
@@ -114,6 +117,8 @@ export class LoginPhoneUI extends Component {
         this._showPass = false;
         this._passClose.active = true;
         this._passOpen.active = false;
+
+        this._closeBtn.node.on(Button.EventType.CLICK, this.closeLoginDia, this);
 
         ProtocolEventManager.on(EProtocolID.ACCOUNT_TOKEN, this._onAccountRespond, this, EEventListenerPriority.HIGHER);
     }
@@ -286,6 +291,12 @@ export class LoginPhoneUI extends Component {
             this._tweenAct.stop();
         }
         UiPopupHelper.show(this.node);
+    }
+
+    public closeLoginDia(): void {
+        console.log("close login dia");
+        this.node.destroy();
+        LoginInit.hidePhoneLogin();
     }
 
     // public toShow() {
