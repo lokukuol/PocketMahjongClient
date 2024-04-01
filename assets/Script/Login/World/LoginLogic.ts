@@ -96,8 +96,10 @@ export class LoginLogic extends Component {
                 LoginUiMain.ins.loadingND.active = false;
                 console.log("amin over");
                 this.btnNode_.active = true;
+                this.node.active = true;
             }).start();
             LoginUiMain.ins.loadingND.active = true;
+            this.node.active = true;
             device.fetchDeviceID(deviceID => {
                 if (deviceID == undefined || deviceID == null) {
                     return;
@@ -114,9 +116,11 @@ export class LoginLogic extends Component {
     }
 
     private _onAccountRespond(event): void {
+        console.log("===phone pass login 111:", event);
         if (!this.node.active) {
             return;
         }
+        this.node.active = false;
         LoginEnity.inputPhone = "";
         console.log("===phone pass login:", event);
         if (event.success && event.data.token) {
@@ -132,13 +136,9 @@ export class LoginLogic extends Component {
                 accountId: event.data.accountId + "",
                 expiration: event.data.timestamp ?? undefined,
             });
-            this._onGetServerURLRequire();
-            // LocalCacheManager.write('login', {
-            //     account: this._phoneEB.string,
-            //     pass: this._passEB.string,
-            // });
-            // GlobalVar.willLoadMoudle = null;
-            // SceneMgr.runScene("Home", false);
+            this.node.destroy();
+            GlobalVar.willLoadMoudle = null;
+            SceneMgr.runScene("Home", false);
         } else {
             if (event.data?.msg) {
                 App.getInst(ToastUI).showTips(event.data.msg);
@@ -151,58 +151,8 @@ export class LoginLogic extends Component {
             }
             this._isConfirmBtnAble = true;
             this.btnNode_.active = true;
+            this.node.active = true;
         }
-    }
-
-    private _onGetServerURLRequire() {
-        // 3.获取游戏服务器地址
-        ProtocolEventManager.on(EProtocolID.GET_SERVER_URL, this._onServerURLRespond, this, EEventListenerPriority.HIGHER);
-        ProtocolHTTPManager.load(EProtocolID.GET_SERVER_URL, {
-            account: LoginEnity.accountID,
-        }, false);
-    }
-
-    private _onServerURLRespond(event) {
-        console.log("服务器地址：", event);
-        LoginEnity.serverURL = null;
-        if (event.success && event.data) {
-            LoginEnity.serverURL = event.data.serverURL;
-        }
-        ProtocolEventManager.on(EProtocolID.PROFILE_REQ, this._onProfileRespond, this, EEventListenerPriority.HIGHER);
-        // 4 获取个人信息
-        ProtocolHTTPManager.load(EProtocolID.PROFILE_REQ, {
-            accountId: LoginEnity.accountID,
-        }, false);
-    }
-
-    private _onProfileRespond(event): void {
-        ProtocolEventManager.off(event.protocolID, this._onProfileRespond, this);
-        console.log("========profile event:", event);
-        if (event.success && event.data.res == "SUCCESS") {
-            LoginEnity.nickName = event.data["name"];
-            LoginEnity.avatarTID = event.data["avatarId"];
-        }
-        //获取个人信息
-        App.getInst(RoleCtrl).RoleSimpleInfoReq(Number(LoginEnity.accountID), new CallBack(() => {
-            //初始化设置
-            App.getInst(SettingCtrl).init();
-            //获取背包信息
-            App.getInst(BagCtrl).pbGetBag(LoginEnity.playerID);
-            //获取weBao信息
-            App.getInst(ShopCtrl).GetWBBindInfoReq(LoginEnity.playerID);
-            // 5 获取俱乐部个人信息
-            App.getInst(ClubCtrl).GetPlayerInfoReq(LoginEnity.playerID, 0, new CallBack(this._onClubPlayerInforRespond, this));
-        }, this), new CallBack(() => {
-            //登出到登录界面
-            // let view: CommonDialog = App.getInst(ViewMgr).open(eSysId.CommonDialog, [`登陆失败`, new CallBack(() => {
-            //     App.getInst(GameEntrance).logout();
-            // }, this), null, "", true, 1]);
-        }, this));
-    }
-
-    private _onClubPlayerInforRespond(params: protocol.club.IGetPlayerInfoResp): void {
-        GlobalVar.willLoadMoudle = null;
-        SceneMgr.runScene("Home", true);
     }
 }
 

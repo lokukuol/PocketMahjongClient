@@ -241,10 +241,10 @@ export class ShopCtrl extends Singleton {
      * @param playerId
      */
     public GetWBBindInfoReq(playerId: number, cb?: CallBack): void {
-        App.getInst(HttpCtrl).requestServer(EProtocolID.CLUB_GETWBBINDINFO, {playerId}, new CallBack((params) => {
-            this.GetWBBindInfoResp(params);
-            cb?.exe();
-        }, this));
+        // App.getInst(HttpCtrl).requestServer(EProtocolID.CLUB_GETWBBINDINFO, {playerId}, new CallBack((params) => {
+        //     this.GetWBBindInfoResp(params);
+        //     cb?.exe();
+        // }, this));
     }
 
     public GetWBBindInfoResp(params: protocol.club.IGetWBBindInfoResp): void {
