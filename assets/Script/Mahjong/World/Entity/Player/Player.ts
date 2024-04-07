@@ -41,44 +41,32 @@ import {protocol} from "../../../../framework/network/protocol-configs";
 
 // 玩家
 export class Player {
-
     // 玩家信息
     public info = new PlayerInfo();
-
     // 游戏数据
     public gameData = new PlayerGameData();
-
     // 表现
     public persentation = new PlayerPersentation();
-
 }
 
 // 玩家信息
 export class PlayerInfo {
-
     // 玩家ID
     public id: string;
-
     // 昵称
     public nickname: string;
-
     // 头像
     public iconId: number;
-
     // 称号
     public title: string;
-
     // 点数
     public dianShu: number;
-
     // 段位名称
     public lvName: string;
     // 段位等级
     public lvName2: string;
-
     // 平均顺位
     public pjsw: number = 0;
-
     // 1 - 4 位率
     public WL1: number = 0;
     public WL2: number = 0;
@@ -100,39 +88,28 @@ export class PlayerInfo {
     public PJHPDS: number = 0;
     // 平均放铳点数
     public PJFC: number = 0;
-
     // 趋势图
     public chart: number[];
-
 }
 
 // 玩家游戏数据
 export class PlayerGameData {
-
     // 座位ID。服务器需要的数据。
     public seatId: number;
-
     // 座位方位
     public seatOrien: SeatOrien;
-
     // 手牌
     public handcard = new Array<Card>();
-
     // 打出去的牌
     public discard = new Array<Card>();
-
     // 明牌
     public cardShown = new Array<CardShown>();
-
     // 是否立直
     public isLiZhi = false;
-
     // 是否托管
     public isTrustee = false;
-
     // 是否准备
     public isReady = false;
-
     // 庄位
     public bankerSeatID: number = 0;
 }
@@ -153,13 +130,10 @@ export class PlayerTingData {
 
 // 表现
 export class PlayerPersentation {
-
     // 座位节点
     public seat: WorldNodeSeat;
-
     // Ui 玩家信息
     public info: UiPlayerInfo;
-
     // 表现的节点索引
     public idx: number;
 }
@@ -176,8 +150,6 @@ export class PlayerMgr {
     public static ins: PlayerMgr;
     public local: Player = null;
     public all = new Map<string, Player>();
-
-
 }
 
 export class PlayerHelper {

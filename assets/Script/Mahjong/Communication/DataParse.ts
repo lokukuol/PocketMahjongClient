@@ -61,17 +61,13 @@ export class DataParse {
         player.info.id = pbPlayer.userId;
         player.info.nickname = pbPlayer.nickname;
         player.info.iconId = pbPlayer.headerId;
-
         player.gameData.seatId = pbPlayer.seatId;
         player.gameData.seatOrien = ScMapping.orien_s2c(pbPlayer.seatId);
-
         player.gameData.isReady = pbPlayer.ready == 1 ? true : false;
-
         console.log("seattid2:", player.gameData.seatId);
         console.log("seatOrien:", player.gameData.seatOrien);
         // 统计信息
         this.parsePlayerStatics(pbPlayer.statics, player);
-
     }
 
     public static parsePlayerStatics(pb: protocol.mahjong_jp.IPlayerPlayStaticsInfo, player: Player) {
@@ -112,10 +108,7 @@ export class DataParse {
         // console.log("==parse op ui, opcode:", opCode, "===cardid:", cardId);
         var op = UiMain.ins.popup.op;
         op.reset();
-
         if (opCode == 0) return;
-
-
         // 是否已发送过操作
         let mHaveSendPass: boolean = false;
         // 2 托管状态下，不显示操作按钮，自动过
@@ -126,26 +119,21 @@ export class DataParse {
             op.root.active = false;
             return;
         }
-
-
         op.root.active = true;
         op.btnPass.active = true;
         op.playerId = playerId;
         op.cardId = cardId;
         op.cardIdsGang = cardIdsGang;
-
         // 恢复一些状态
         op.gangMing = false;
         op.gangHu = false;
         op.gangAn = false;
         op.gangBu = false;
-
         let strOp = "";
         // 是否暗杠或者加杠
         let isClosedQuadOrAddedOpenQuad: boolean = false;
         // 除了吃、碰、杠、过之外其他按钮是否有显示
         let mShowExpCPGG: boolean = false;
-
         // 右吃
         if (opCode & OpCode.OPE_RIGHT_CHI) {
             op.chiRight = true;
@@ -226,24 +214,19 @@ export class DataParse {
             strOp += "流局 ";
             mShowExpCPGG = true;
         }
-
-        // 出现和牌选项时，不应该有振听的提示--2023.10.25
+        // 出现和牌选项时，不应该有振听的提示
         if (op.btnHu.active) {
             UiMain.ins.zhenTing.active = false;
         }
-
         console.log("本机玩家操作。玩家ID：" + playerId + "opCode:" + opCode + " 操作：" + strOp);
-
         // "鸣"开启时，不显示吃碰杠（仅包括明杠）；同时屏蔽过操作，自动发送过牌
         // 如果有除了“吃碰杠”的其他按钮，就显示其他按钮。
         // 鸣牌是针对别人打出的牌，自己摸牌加杠或者暗杠是正常提示
-        if (SettingsData.ins.mingHint == true) {
+        if (SettingsData.ins.mingHint) {
             op.btnChi.active = false;
             op.btnPeng.active = false;
-
             if (!isClosedQuadOrAddedOpenQuad) {
                 op.btnGang.active = false;
-
                 if (!mShowExpCPGG && !mHaveSendPass && op.btnPass.active) {
                     CommSend.pass();
                     mHaveSendPass = true;
@@ -256,7 +239,7 @@ export class DataParse {
     // 用户和鸣切按下之后的处理，暂未使用
     public static toHandleMing(mShowExpCPGG: boolean, mHaveSendPass: boolean): void {
         var op = UiMain.ins.popup.op;
-        if (SettingsData.ins.mingHint == true) {
+        if (SettingsData.ins.mingHint) {
             // 除了吃、碰、杠、过之外还有其他按钮显示
             if (mShowExpCPGG) {
                 op.btnChi.active = false;

@@ -467,7 +467,6 @@ export class UiOp {
         tween(this.root).sequence(
             tween(this.root).delay(3),
             tween(this.root).call(() => {
-
                 // console.log("btn hu active:", this.btnHu.active);
                 // console.log("btn zimo active:", this.btnZiMo.active);
                 if (this.btnHu.active == true) {
@@ -475,7 +474,6 @@ export class UiOp {
                 } else if (this.btnZiMo.active == true) {
                     this.btnZiMo.emit(Input.EventType.TOUCH_END);
                 }
-
             }),
         ).start();
     }

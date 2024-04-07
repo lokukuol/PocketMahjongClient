@@ -34,15 +34,12 @@ import {Card} from "../Card/Card";
 
 // 明牌类型
 export enum CardShownType {
-
     // 无类型
     None,
-
     // 吃
     Chi,
 
-    // 碰 
-    // Peng , 
+    // 碰 Peng ,
     // 碰上家
     PengPrevious,
     // 碰对家
@@ -57,8 +54,7 @@ export enum CardShownType {
     // 碰下家加杠
     PengNextGang,
 
-    // 杠
-    // Gang , 
+    // 杠 Gang ,
     // 杠上家
     GangPrevious,
     // 杠对家
@@ -67,17 +63,13 @@ export enum CardShownType {
     GangNext,
     // 暗杠
     GangDark,
-
 }
 
 // 明牌
 export class CardShown {
-
     // 明牌类型
     public type: CardShownType;
-
     // 组成明牌的牌子
     public cards = new Array<Card>();
-
 }
 

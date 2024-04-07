@@ -57,15 +57,17 @@ export class OreinSeatIdx {
     public oreinToSeatIdx = new Map<SeatOrien, Map<SeatOrien, number>>();
 
     public static createIns() {
-
         if (this.ins == null) {
             this.ins = new OreinSeatIdx();
         }
-
     }
 
     public constructor() {
+        this.createMapFor4Player();
+    }
 
+    public createMapFor4Player() {
+        this.oreinToSeatIdx.clear();
         let mapping = new Map<SeatOrien, number>();
         this.oreinToSeatIdx.set(SeatOrien.East, mapping);
         mapping.set(SeatOrien.East, 0);
@@ -93,18 +95,36 @@ export class OreinSeatIdx {
         mapping.set(SeatOrien.South, 2);
         mapping.set(SeatOrien.West, 3);
         mapping.set(SeatOrien.North, 0);
+    }
 
+    public createMapFor3Player() {
+        this.oreinToSeatIdx.clear();
+        // 3人玩法
+        let mapping = new Map<SeatOrien, number>();
+        this.oreinToSeatIdx.set(SeatOrien.East, mapping);
+        mapping.set(SeatOrien.East, 0);
+        mapping.set(SeatOrien.South, 1);
+        mapping.set(SeatOrien.West, 3);
+
+        mapping = new Map<SeatOrien, number>();
+        this.oreinToSeatIdx.set(SeatOrien.South, mapping);
+        mapping.set(SeatOrien.East, 3);
+        mapping.set(SeatOrien.South, 0);
+        mapping.set(SeatOrien.West, 1);
+
+        mapping = new Map<SeatOrien, number>();
+        this.oreinToSeatIdx.set(SeatOrien.West, mapping);
+        mapping.set(SeatOrien.East, 1);
+        mapping.set(SeatOrien.South, 3);
+        mapping.set(SeatOrien.West, 0);
     }
 
     public getIdx(orien: SeatOrien): number {
-
         var localSeatOrein = PlayerMgr.ins.local.gameData.seatOrien;
         var idx = this.oreinToSeatIdx.get(localSeatOrein).get(orien);
         console.log("自己SeatOrein:", localSeatOrein, "他人orien:", orien, "idx:", idx);
         return idx;
-
     }
-
 }
 
 /*

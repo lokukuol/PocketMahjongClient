@@ -35,10 +35,8 @@ import {Node} from "cc";
 // 麻将牌
 export class Card {
     public id: string;
-
     // 是否是摸切牌
     public isMoQie = false;
-
     // 表现 3D
     public presentation3d: CardPresentation3d;
     // 表现 2D
@@ -54,12 +52,10 @@ export class CardPresentation3d {
     public shadowStand: Node;
     // 阴影 躺
     public shadowLie: Node;
-
     // 牌的高亮标志
     public cardLight: Node = null;
     // 高亮牌的箭头
     public cardArrow: Node = null;
-
     // 闪光
     public cardFlash: Node = null;
     // 立直特效
@@ -71,7 +67,6 @@ export class CardPresentation3d {
 // 显示组件 2D
 export class CardPresentation2d {
     public root: Node;
-
     // 闪光
     public cardFlash: Node = null;
 }

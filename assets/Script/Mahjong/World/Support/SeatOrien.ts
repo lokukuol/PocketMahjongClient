@@ -40,5 +40,4 @@ export enum SeatOrien {
     West,
     // 北
     North,
-
 }

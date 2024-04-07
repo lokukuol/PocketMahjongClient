@@ -67,7 +67,7 @@ import {Player, PlayerMgr, PlayerTingData} from "../World/Entity/Player/Player";
 import {CardHint} from "../World/Support/CardHint";
 import {GameState} from "../World/Support/GameState";
 import {HandcardPersentation} from "../World/Support/HandcardOp";
-import {LocalView} from "../World/Support/LocalView";
+import {LocalView, OreinSeatIdx} from "../World/Support/LocalView";
 import {SeatOrien} from "../World/Support/SeatOrien";
 import {SettingsData} from "../World/Support/SettingsDataPresist";
 import {String3d} from "../World/Support/String3d";
@@ -760,8 +760,6 @@ export class CommRecv {
 
         // 本机有操作
         if (pb.nOpWeight > 0) {
-
-
             // 玩家可以做的操作
             DataParse.parseOpUi(pb.nOpWeight, playerId, cardId);
             // 新添加，高亮最后一张牌
@@ -769,17 +767,14 @@ export class CommRecv {
             // 吃碰杠自动过--暂时注释，没人知道这个规则
             // this.autoPassOpChiPengGang(pb.nOpWeight);
             this.autoHe(pb.nOpWeight);
-
             // 除了（吃、碰、杠之外是否还有其他操作）
-            let mOpResExpCPG: number = pb.nOpWeight & OpCode.OPE_GANG_HU
-                || pb.nOpWeight & OpCode.OPE_HU
-                || pb.nOpWeight & OpCode.OPE_ZI_MO
-                || pb.nOpWeight & OpCode.OPE_TING
-                || pb.nOpWeight & OpCode.OPE_LIUJU
+            let mOpResExpCPG: number = pb.nOpWeight & OpCode.OPE_GANG_HU ||
+                pb.nOpWeight & OpCode.OPE_HU ||
+                pb.nOpWeight & OpCode.OPE_ZI_MO ||
+                pb.nOpWeight & OpCode.OPE_TING ||
+                pb.nOpWeight & OpCode.OPE_LIUJU
             // 1鸣牌时（除了吃、碰、杠之外无其他操作），不需要显示倒计时 2托管时，不需要显示倒计时，自动过
-            if ((SettingsData.ins.mingHint && (mOpResExpCPG == 0))
-                || SettingsData.ins.isTrustee) {
-
+            if ((SettingsData.ins.mingHint && mOpResExpCPG == 0) || SettingsData.ins.isTrustee) {
             } else {
                 // 本机操作时间
                 UiCountdown.ins.show(GameState.ins.fixDurationOp, pb.diffTimeout);
@@ -853,20 +848,16 @@ export class CommRecv {
 
     // 自动和
     private static autoHe(op: number): boolean {
-
         if (SettingsData.ins.isAutoHe == false) {
             return false;
         }
-
         let n = (op & OpCode.OPE_GANG_HU) ||
             (op & OpCode.OPE_HU) ||
             (op & OpCode.OPE_ZI_MO);
         if (n == 0) {
             return false;
         }
-
         console.log("执行自动和");
-
         UiMain.ins.popup.op.startAutoHe();
         return true;
     }
@@ -962,7 +953,8 @@ export class CommRecv {
 
     // （8967--0x2307）进入房间成功，返回桌子信息
     public static onEnterRoomSucceed(data: Uint8Array) {
-
+        // TODO: 根据tabletype初始化座位
+        // OreinSeatIdx.ins.createMapFor4Player();
         let pb = protocol.mahjong_jp.MahjongTableEnterResponse.decode(data);
         console.log("【8967--0x2307】进入房间：", pb);
         // console.log("curque:", pb.curQuan);
@@ -970,14 +962,10 @@ export class CommRecv {
         // console.log("players:", pb.players);
         // 玩家的id，四个玩家都要重新请求，服务器数据不准，尤其是名字、头像
         let mUserIDArr: number[] = [];
-
         const playerIDs: number[] = [];
-
         for (let pbPlayer of pb.players) {
             const id = pbPlayer.userId;
-
             playerIDs.push(id);
-
             let player = PlayerMgr.ins.all.get(id);
             if (player == null) {
                 console.log("-- null --:", id);
@@ -985,56 +973,43 @@ export class CommRecv {
                 player.info.id = id;
                 PlayerMgr.ins.all.set(id, player);
             }
-
             mUserIDArr.push(id);
-
             DataParse.parsePlayer(pbPlayer, player);
         } // end for
-
         // 移除已不在桌上的玩家
         const invalidPlayerIDs: string[] = [];
-
         for (const [userID, _] of PlayerMgr.ins.all) {
             if (playerIDs.indexOf(Number(userID)) < 0) {
                 invalidPlayerIDs.push(userID);
             }
         }
-
         invalidPlayerIDs.forEach(id => {
             console.log(`delete invalid player: ${id}`);
             PlayerMgr.ins.all.delete(id);
         });
-
         // console.log("After players all:", PlayerMgr.ins.all);
         // console.log("local seatId:", PlayerMgr.ins.local.gameData.seatId);
         // 设置本机视角
         LocalView.init(PlayerMgr.ins.local.gameData.seatOrien);
-
         // 刷新玩家UI
         for (let player of PlayerMgr.ins.all.values()) {
             PlayerEnter.exe(player);
         }
-
         // 出牌固定时间
         GameState.ins.fixDurationDiscard = pb.outCardTimeout;
         // 操作固定时间
         GameState.ins.fixDurationOp = pb.operationTimeout;
-
         // 游戏状态 0--游戏未开始（刚进入房间） 1--游戏准备开始 2--游戏开始 3--一场结束（只有一场结束才能退出房间）
         GameState.ins.gameStatus = 0;
         UiMain.ins.border.btnQuit.active = true;
-
         // 圈0显示东，圈1显示南，加上XX局
-
         // 刚进入游戏，只能是东风局，设置为0
         GameState.ins.currQuan = 0;
         // 设置中间显示
         WorldNode.ins.info.setQuanID(pb.quan, pb.tableId);
-
         if (mUserIDArr.length > 0) {
             GameHttpCtrl.Inst.reqMorePlayerSimpleInfo(mUserIDArr);
         }
-
     }
 
     // （8968--0x2308）断线重连绑定成功
