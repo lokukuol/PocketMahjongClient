@@ -64,26 +64,23 @@ export class Main extends Component {
 
     protected onLoad(): void {
         log("main init completed...");
-
         if (jsb?.Device) {
             console.log(`keep screen on`);
             jsb.Device.setKeepScreenOn(true);
         }
-
         //do test
         // AppVar.miniVer = `1.0.5`;
         if (!this.manifestUrl) {
             console.error("本地manifestUrl没有绑定");
             return;
         }
-
         if (AppVar.isRelease) {
             AppVar.systemConfigUrl = `http://qipaiplay.com/systemConfig.json`
         } else {
             AppVar.systemConfigUrl = `http://qipaiplay.com/systemConfig.json`
         }
+        App.Init();
         RemoteConfigLoader.printConfigText();
-
         ProtocolHTTPManager.setDefaultUrl();
         PlainHTTPManager.init();
         AppVar.manifestUrl = this.manifestUrl;

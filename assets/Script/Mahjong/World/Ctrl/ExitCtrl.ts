@@ -35,12 +35,12 @@ import {ESceneVar, GlobalVar} from "../../../GlobalVar";
 import {UiMain} from "../../Ui/Main/UiMain";
 import {PlayerMgr} from "../Entity/Player/Player";
 import {ClubEntity} from "../../../Home/Entity/ClubEntity";
+import { SceneMgr } from '../../../framework/mgr/SceneMgr';
 
 export class ExitCtrl {
     public static exe(): void {
         // 清空所有玩家的数据
         UiMain.ins.playerInfoCollection.clearAllList();
-
         let playerID = PlayerMgr.ins.local.info.id;
         let player = PlayerMgr.ins.all.get(playerID);
         if (player) {
@@ -48,13 +48,7 @@ export class ExitCtrl {
             PlayerMgr.ins.all.set(playerID, player);
             console.log("all:", PlayerMgr.ins.all);
         }
-        // SceneMgr.runScene("Home", true);
-        // console.log('退出房间', ClubEntity.birdGodMatchMode);
         GlobalVar.willLoadMoudle = ClubEntity.birdGodMatchMode ? 'BirdGodRule' : "CLUB";
-        GlobalVar.currScene = ESceneVar.SCENE_HOME;
-        director.loadScene("Home")
-
-        // Comm.closeSocket();
-        // WebSocketMgr.Inst.closeNetWork(true);
+        SceneMgr.runScene("Home");
     }
 }

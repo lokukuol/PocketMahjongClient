@@ -34,25 +34,18 @@ import {Player} from "../Entity/Player/Player";
 
 // 游戏状态
 export class GameState {
-
     public static ins: GameState = null;
-
     // 最后一次出牌的玩家
     public playerLastDiscarded: Player = null;
-
     // 山牌
     public shanCardNum = 74;
-
     // 出牌的固定时间
     public fixDurationDiscard = 0;
     // 操作的固定时间
     public fixDurationOp = 0;
-
     // 游戏状态 0--游戏未开始（刚进入房间） 1--游戏准备开始 2--游戏开始 3--一场结束（只有一场结束才能退出房间）
     public gameStatus: number = 0;
-
     // 当前东风局还是南风局 0就是东，1就是南
     public currQuan: number = -1;
-
     public doraValuesMap: Map<number, boolean> = new Map;
 }

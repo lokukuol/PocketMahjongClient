@@ -158,7 +158,6 @@ export class CommSend {
         packet.header.cmd = 0x2213;
         let data = PacketHelper.makePacketData(packet);
         this.ws.send(data);
-
         console.log("发送：cmd：" + packet.header.cmd + " 重连请求");
     }
 

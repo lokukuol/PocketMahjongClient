@@ -64,16 +64,13 @@ export class CardFactory {
     // 设置 3D 表现
     public static setPresentation3d(card: Card) {
         var pf = PrefabMgr.card.get(card.id);
-
         if (pf == null) {
             console.log("找不到3D牌显示对象：牌ID：" + card.id);
         }
-
         card.presentation3d = new CardPresentation3d();
         var root = instantiate(pf);
         card.presentation3d.root = root;
         card.presentation3d.main = root.getChildByPath("Main");
-
         // 描边
         var pf2 = PrefabMgr.root.getChildByPath("Card/CardOutline");
         var outline = instantiate(pf2);

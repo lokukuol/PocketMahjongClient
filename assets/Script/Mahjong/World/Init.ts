@@ -42,49 +42,38 @@ import {CardInfo} from "./Support/HandcardOp";
 import {PrefabMgr} from "./Support/Prefab";
 import {SettingsDataPresist} from "./Support/SettingsDataPresist";
 import {WorldNodeInit} from "./Support/WorldNode";
+import {LocalCacheManager} from "../../framework/cache/local-cache";
 
 export class Init {
-
     public static exe() {
-
+        // 获取出牌方式 操作方式 1双击出牌  2拖拽出牌
+        let cacheOperation = LocalCacheManager.read('operation');
+        if (cacheOperation && cacheOperation.type) {
+            App.getInst(SettingCtrl).set(eSettingKey.operationType, cacheOperation.type);
+        }
         GameState.ins = new GameState();
-
-
         SettingsDataPresist.load();
-
         UiMain.ins.init();
-
         WorldNodeInit.exe();
-
         OpIndicator.init();
-
         // 声音开关
         let mSoundEnable = App.getInst(SettingCtrl).get(eSettingKey.Sound);
         // 音效开关
         let mMusicEnable = App.getInst(SettingCtrl).get(eSettingKey.Music);
-
         PrefabMgr.init(() => {
             CardInfo.init();
             SoundEffect.init();
             SoundEffect.enabled = mMusicEnable;
             SoundMusic.init();
             SoundMusic.enabled = mSoundEnable;
+            // 播放背景音乐
             SoundMusic.play();
         });
-
         // 放到大厅去初始化
         // PlayerMgr.ins = new PlayerMgr() ;
         // PlayerMgr.ins.local = new Player() ;
-
-        if (GlobalVar.reconnectData) {
-            CmdHandleReconnect.exe(GlobalVar.reconnectData);
-            GlobalVar.reconnectData = null;
-        } else {
+        if (!GlobalVar.isReconnect) {
             GlobalVar.loadGameOver = true;
         }
-
     }
-
 }
-
-

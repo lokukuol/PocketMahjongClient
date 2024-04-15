@@ -37,17 +37,13 @@ import {Player} from "../../Entity/Player/Player";
 
 // 操作指示器
 export class OpIndicator {
-
     public static init() {
-
         this.data = new Map<SeatOrien, Node>();
         let root = WorldNode.ins.table.root.getChildByPath("OpIndicator");
-
         this.data.set(SeatOrien.East, root.getChildByPath("1"));
         this.data.set(SeatOrien.South, root.getChildByPath("2"));
         this.data.set(SeatOrien.West, root.getChildByPath("3"));
         this.data.set(SeatOrien.North, root.getChildByPath("4"));
-
         this.hide();
     }
 
@@ -58,26 +54,19 @@ export class OpIndicator {
     }
 
     public static exe(player: Player) {
-
         this.hide();
-
         var item = this.data.get(player.gameData.seatOrien);
         item.active = true;
-
         this.playAnim(item);
-
     }
 
     static playAnim(item: Node) {
-
         let mr = item.getComponent(MeshRenderer);
         let m = mr.materials[0];
         let cr = new Color(255, 255, 255, 0);
         m.setProperty("mainColor", cr);
-
         let duration = 0.4;
         let duration2 = 0.8;
-
         const start = 0;
         const end = 255;
         this.obj = {a: start};
@@ -88,8 +77,6 @@ export class OpIndicator {
                 return start + (end - start) * ratio;
             }
         });
-
-
         let t2 = tween(this.obj).to(duration2, {a: end}, {
             progress: (start, end, current, ratio) => {
                 let cr = new Color(255, 255, 255, 255 - current);
@@ -97,7 +84,6 @@ export class OpIndicator {
                 return start + (end - start) * ratio;
             }
         });
-
         Tween.stopAllByTarget(this);
         Tween.stopAllByTarget(this);
         tween(this).sequence(
@@ -114,11 +100,8 @@ export class OpIndicator {
             ),
             tween().delay(duration2))
             .repeatForever().start();
-
     }
 
     static obj = null;
-
     static data: Map<SeatOrien, Node> = null;
-
 }

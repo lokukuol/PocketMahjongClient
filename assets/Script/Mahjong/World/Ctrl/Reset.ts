@@ -38,20 +38,17 @@ import {Player, PlayerMgr} from "../Entity/Player/Player";
 // 重置 玩家状态设置为初始。
 // 为了准备下一局
 export class Reset {
-
     public static exe(): void {
         console.log("====reset exe");
         for (let player of PlayerMgr.ins.all.values()) {
             this.resetSeat(player);
-        } // end for
-
+        }
         // 一些UI
         UiSettleDianShu.ins.root.active = false;
         UiMain.ins.popup.settleLocalPlayer.root.active = false;
         UiMain.ins.popup.settleLiuJuHuangPai.root.active = false;
         UiMain.ins.popup.settleLiuJuZhongTu.root.active = false;
         UiMain.ins.touchHandcard.clearDiscardLimit();
-
         // 振听
         UiMain.ins.zhenTing.active = false;
     }
@@ -70,7 +67,6 @@ export class Reset {
             card.presentation2d?.root.destroy();
         }
         player.gameData.handcard.splice(0, player.gameData.handcard.length);
-
         // 明牌
         for (let cardShown of player.gameData.cardShown) {
             for (let card of cardShown.cards) {
@@ -78,18 +74,15 @@ export class Reset {
             }
         }
         player.gameData.cardShown.splice(0, player.gameData.cardShown.length);
-
         // 打出去的牌
         for (let card of player.gameData.discard) {
             card.presentation3d.root.destroy();
         }
         player.gameData.discard.splice(0, player.gameData.discard.length);
-
         // 立直
         player.gameData.isLiZhi = false;
         if (player.persentation.seat != null) {
             player.persentation.seat.flagLiZhi.active = false;
         }
     }
-
 }

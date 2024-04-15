@@ -57,46 +57,54 @@ import {CommSend} from "./CommSend";
 import {OpCode} from "./OpCode";
 
 /*
-    自摸胡牌，放炮胡牌：        战绩结算 -> 点数结算 -> 下局
-    流局满贯，庄家听牌流局：    战绩结算 -> 点数结算 -> 下局
-    荒牌流局：                 荒牌流局UI ->点数结算 ->下局
-    中途流局：                 中途流局UI -> 下局
-
+    自摸胡牌，放炮胡牌：          战绩结算 -> 点数结算 -> 下局
+    流局满贯，庄家听牌流局：       战绩结算 -> 点数结算 -> 下局
+    荒牌流局：                  荒牌流局UI ->点数结算 ->下局
+    中途流局：                  中途流局UI -> 下局
 */
 
 // 命令处理 局结算
 export class CmdHandleSettleRound {
-
     // 一场完成标记
     public static isGameEnd = false;
+
+    public static handleStopGame(uiGame: UiSettleGame, pb: any) {
+        // 不能直接进入下一局，如果一场结束，进入结算界面
+        if (pb.stopGame) {
+            uiGame.show();
+            uiGame.btnOK.once(Input.EventType.TOUCH_END, () => {
+                uiGame.root.active = false;
+                this.resetNextGame();
+            });
+        } else {
+            Reset.exe();
+            CommSend.ready();
+        }
+    }
 
     public static exe(data: Uint8Array) {
         let pb = protocol.mahjong_jp.GameRoundResult.decode(data);
         console.log("【8991--0x231F】局结束:", pb);
-        // // UI 不显示
+        // UI 不显示
         SettingsData.ins.isTrustee = false;
         UiMain.ins.trusteeUI.hide();
         // 本机不显示操作 UI
         UiMain.ins.popup.op.root.active = false;
-
+        // 返回按钮
         UiMain.ins.popup.opBack.root.active = false;
+        // 倒计时
         UiCountdown.ins.hide();
-
         // 隐藏所有玩家的托管标志
         UiMain.ins.playerInfoCollection.hideAllTrustee();
-
+        // 中间的分数
         this.setCenterInfo(pb);
-
         // 战绩
         let uiZhanJi = UiMain.ins.popup.settleLocalPlayer;
         // 设置点数结算UI
         let uiDianShu = UiSettleDianShu.ins;
         // 是否产生分数变化
         let mIsScoreChange: boolean = this.setUiDianShu(uiDianShu, pb);
-
-
         let uiGame = UiSettleGame.ins;
-
         // 游戏结果 (荒牌流局: 1 | 途中流局: 2 ｜ 自摸: 3 ｜ 放炮: 4)
         // 流局类型 (如果是流局，则---> 庄家听牌流局: 0x001, 流局满贯: 0x002; 如果是途中流局, 则---> 四杠散了: 1, 四风连打: 2, 四家立直: 3, 九种九牌: 4)
         // 自摸胡牌，放炮胡牌：战绩结算->点数结算->下局
@@ -104,114 +112,54 @@ export class CmdHandleSettleRound {
         // 中途流局：中途流局UI->下局
         // 流局满贯：战绩结算->点数结算->下局
         let ret = pb.nRoundResult;
-
         // 本场展示
         if (ret == 1) {
-            // 流局满贯：战绩结算->点数结算->下局
+            // 流局满贯 庄家听牌流局：战绩结算->点数结算->下局
             if (pb.nLiuJuType & 0x002) {
-
                 this.showZhanJi(pb, () => {
-
                     uiZhanJi.hide();
                     UiBtnCountDown.stop(uiZhanJi.btnOK);
-
                     // 显示点数
-                    // console.log("四家面板1");
                     uiDianShu.show();
+                    UiBtnCountDown.start(uiDianShu.btnOK, 3);
                     uiDianShu.btnOK.once(Input.EventType.TOUCH_END, () => {
                         // 隐藏点数
                         uiDianShu.hide();
-
                         UiBtnCountDown.stop(uiDianShu.btnOK);
+                        this.handleStopGame(uiGame, pb);
                         console.log("一场是否结束：", pb.stopGame)
-                        // 不能直接进入下一局，如果一场结束，进入结算界面
-                        if (pb.stopGame) {
-                            uiGame.show();
-                            uiGame.btnOK.once(Input.EventType.TOUCH_END, () => {
-
-                                uiGame.root.active = false;
-                                // Reset.exe() ;
-                                // Reset.resetSeatOrien();
-                                // CommSend.ready() ;
-                                this.resetNextGame();
-                            });
-                        } else {
-                            Reset.exe();
-                            CommSend.ready();
-                        }
-
                     });
-                    UiBtnCountDown.start(uiDianShu.btnOK, 3);
-
                 });
-
                 return;
             }
-
-
             // 荒牌流局：先显示荒牌流局界面，再显示四人分数对比（点数）界面
-            // // 庄家听牌流局
-            // if( pb.nLiuJuType & 0x001 ){
-
-            // }
-
             let uiLiuJuHuangPai = UiMain.ins.popup.settleLiuJuHuangPai;
             this.setUiLiuJuHuangPai(uiLiuJuHuangPai, pb);
-
-            // let uiDianShu = UiSettleDianShu.ins ;
-            // this.setUiDianShu( uiDianShu , pb ) ;
-
             // 荒牌流局：先显示荒牌流局界面，再显示四人分数对比（点数）界面
             uiLiuJuHuangPai.show();
             UiBtnCountDown.start(uiLiuJuHuangPai.btnOK, 3);
             uiLiuJuHuangPai.btnOK.once(Input.EventType.TOUCH_END, () => {
                 uiLiuJuHuangPai.hide();
                 UiBtnCountDown.stop(uiLiuJuHuangPai.btnOK);
-
                 // 有分数变化，显示点数界面，
                 // 没有分数变化，不显示点数界面
                 // liujutype===0 分数没变化
                 if (pb.nLiuJuType === 0) {
                     // 不能直接进入下一局，如果一场结束，进入结算界面
-                    if (pb.stopGame) {
-                        uiGame.show();
-                        uiGame.btnOK.once(Input.EventType.TOUCH_END, () => {
-                            uiGame.root.active = false;
-                            this.resetNextGame();
-                            ;
-                        });
-                    } else {
-                        Reset.exe();
-                        CommSend.ready();
-                    }
+                    this.handleStopGame(uiGame, pb);
                 } else {
-                    // console.log("四家面板2");
                     uiDianShu.show();
                     UiBtnCountDown.start(uiDianShu.btnOK, 3);
                     uiDianShu.btnOK.once(Input.EventType.TOUCH_END, () => {
                         uiDianShu.hide();
                         UiBtnCountDown.stop(uiDianShu.btnOK);
-                        // 不能直接进入下一局，如果一场结束，进入结算界面
-                        if (pb.stopGame) {
-                            uiGame.show();
-                            uiGame.btnOK.once(Input.EventType.TOUCH_END, () => {
-                                uiGame.root.active = false;
-                                this.resetNextGame();
-                                ;
-                            });
-                        } else {
-                            Reset.exe();
-                            CommSend.ready();
-                        }
+                        this.handleStopGame(uiGame, pb);
                     });
                 }
-
-
             });
             return;
         } else if (ret == 2) {
             // 中途流局
-
             let uiLvzt = UiMain.ins.popup.settleLiuJuZhongTu;
             uiLvzt.root.active = true;
             // ①四杠散了②四风连打③四家立直④九种九牌
@@ -221,52 +169,36 @@ export class CmdHandleSettleRound {
             uiLvzt.root.getChildByPath("btnOK").on(Input.EventType.TOUCH_END, () => {
                 UiBtnCountDown.stop(uiLvzt.btnOK);
                 uiLvzt.hide();
-
                 console.log("四家面板3");
                 uiDianShu.show();
                 UiBtnCountDown.start(uiDianShu.btnOK, 3);
                 uiDianShu.btnOK.once(Input.EventType.TOUCH_END, () => {
                     uiDianShu.hide();
                     UiBtnCountDown.stop(uiDianShu.btnOK);
-                    // 不能直接进入下一局，如果一场结束，进入结算界面
-                    if (pb.stopGame) {
-                        uiGame.show();
-                        uiGame.btnOK.once(Input.EventType.TOUCH_END, () => {
-                            uiGame.root.active = false;
-                            this.resetNextGame();
-                        });
-                    } else {
-                        Reset.exe();
-                        CommSend.ready();
-                    }
+                    this.handleStopGame(uiGame, pb);
                 });
             });
-
             return;
         } else if (ret == 4 || ret == 5 || ret == 3) {
             // 自摸 放炮 庄家听牌流局
             // 3D空间动画
             // 显示Ui
-
             if (ret === 3) {
                 SoundEffect.tsumo();
             } else if (ret === 4) {
                 SoundEffect.rong();
             }
-
             new Promise<void>(resolve => {
                 if (ret !== 4) {
                     resolve();
                     return;
                 }
-
                 const player = PlayerMgr.ins.all.get(pb.huOrPaoUid);
                 if (player === null || player === undefined) {
                     console.error(`未找到对应的放炮者`);
                     resolve();
                     return;
                 }
-
                 let winnerInfo: protocol.mahjong_jp.IResPlayerInfo | null = null;
                 for (const info of pb.playerInfo) {
                     if (info.roundResult === 2) {
@@ -276,7 +208,6 @@ export class CmdHandleSettleRound {
                         break;
                     }
                 }
-
                 if (winnerInfo !== null && winnerInfo !== undefined) {
                     const winnerPlayer = PlayerMgr.ins.all.get(winnerInfo.userId);
                     if (winnerPlayer) {
@@ -285,51 +216,30 @@ export class CmdHandleSettleRound {
                         if (targetCardIndex >= 0) {
                             remainingCardValues.splice(targetCardIndex, 1);
                         }
-
                         FirstDrawHandcardNonlocal.showHandCard(winnerPlayer.gameData.handcard, remainingCardValues);
                         CardSort.exe(winnerPlayer.gameData.handcard);
                         HandcardPersentation.setCardsPos3d(winnerPlayer);
                         winnerPlayer.gameData.handcard.forEach(card => CardDisplay.showLie(card));
                     }
                 }
-
                 DiscardedCardPlace.showWinningEffect(player, ScMapping.cardId_s2c(pb.huCard));
-
-                tween(this)
-                    .delay(4)
-                    .call(() => resolve())
-                    .start()
-            })
-                .then(() => {
-                    this.showZhanJi(pb, () => {
-                        uiZhanJi.hide();
-                        UiBtnCountDown.stop(uiZhanJi.btnOK);
-
-                        // 显示点数
-                        console.log("四家面板4");
-                        uiDianShu.show();
-                        uiDianShu.btnOK.once(Input.EventType.TOUCH_END, () => {
-                            // 隐藏点数
-                            uiDianShu.hide();
-
-                            if (this.isGameEnd == false) {
-                                UiBtnCountDown.stop(uiDianShu.btnOK);
-                                // console.log("========ready5");
-                                Reset.exe();
-                                CommSend.ready();
-                                return;
-                            }
-
-                            uiGame.show();
-                            uiGame.btnOK.once(Input.EventType.TOUCH_END, () => {
-
-                                uiGame.root.active = false;
-                                this.resetNextGame();
-                            });
-                        });
-                        UiBtnCountDown.start(uiDianShu.btnOK, 3);
+                tween(this).delay(4).call(() => resolve()).start()
+            }).then(() => {
+                this.showZhanJi(pb, () => {
+                    uiZhanJi.hide();
+                    UiBtnCountDown.stop(uiZhanJi.btnOK);
+                    // 显示点数
+                    console.log("四家面板4");
+                    uiDianShu.show();
+                    UiBtnCountDown.start(uiDianShu.btnOK, 3);
+                    uiDianShu.btnOK.once(Input.EventType.TOUCH_END, () => {
+                        // 隐藏点数
+                        uiDianShu.hide();
+                        UiBtnCountDown.stop(uiDianShu.btnOK);
+                        this.handleStopGame(uiGame, pb);
                     });
                 });
+            });
         }
     }
 
@@ -338,12 +248,10 @@ export class CmdHandleSettleRound {
         Reset.exe();
         Reset.resetSeatOrien();
         CommSend.ready();
-
         // 重置和鸣切（每一局都重置）
         SettingsData.ins.isLizhi = false;
         UiMain.ins.uiAutoOpUI.reset();
         UiMain.ins.uiAutoOpUI.root.active = false;
-
         for (let player of PlayerMgr.ins.all.values()) {
             player.info.dianShu = 0;
             // 清空
@@ -351,52 +259,25 @@ export class CmdHandleSettleRound {
         }
         // 显示点数
         UiMain.ins.btnCenter.showDianShu();
-
         // 隐藏当前玩家的操作指示灯
         OpIndicator.hide();
-
         console.log("玩家手牌：", PlayerMgr.ins.local.gameData.handcard)
-
-        // for(let mCardItem of PlayerMgr.ins.local.gameData.handcard){
-        //     console.log("mCardItem:", mCardItem);
-        // }
-        // 所有都清空
-        // UiMain.ins.touchHandcard.clearDiscardLimit();
-        // var card = handcard[ idx ] ;
-        // handcard.splice( idx , 1 ) ;
-        // // 删除表现
-        // card.presentation3d.root.destroy() ;
     }
 
     // 显示胜利者
     static showZhanJi(pb: protocol.mahjong_jp.GameRoundResult, onComplete: () => void) {
-
         // 找出所有的赢家
         var list = new Array<protocol.mahjong_jp.IResPlayerInfo>();
         for (let pbPlayer of pb.playerInfo) {
             if (pbPlayer.turnMoneyAll > 0) {
                 list.push(pbPlayer);
             }
-
-        } // end for
-
+        }
         let localPlayerUI = UiMain.ins.popup.settleLocalPlayer;
-
-        // // 显示战绩
-        // uiZhanJi.show() ;
-        // uiZhanJi.btnOK.once( Input.EventType.TOUCH_END , ()=>{
-
-        // } ) ;
-        // UiBtnCountDown.start( uiZhanJi.btnOK , 3 ) ;
-
-        // console.log("LIST:", list);
-        // console.log("战绩1");
         let mTweenTimeArr: number[] = [];
         for (let mi = 0; mi < list.length; ++mi) {
             mTweenTimeArr.push(list[mi].fans.length + 3);
         }
-
-        // console.log("==mtweentiemArr:", mTweenTimeArr)
         let mTweenZhanji = tween(this);
         for (let i = 0; i < list.length; ++i) {
             let pbPlayer = list[i];
@@ -406,7 +287,7 @@ export class CmdHandleSettleRound {
                 UiBtnCountDown.start(localPlayerUI.btnOK, mTweenTimeArr[i]);
             });
             mTweenZhanji.delay(mTweenTimeArr[i]);// TODO:TEST 以后记得改为3S
-        } // end for
+        }
         mTweenZhanji.call(onComplete);
         mTweenZhanji.start();
     }
@@ -417,15 +298,12 @@ export class CmdHandleSettleRound {
 
     // 设置战绩UI
     static setUiZhanJi(ui: UiSettleZhanJi, pbPlayer: protocol.mahjong_jp.IResPlayerInfo) {
-
         let player = PlayerMgr.ins.all.get(pbPlayer.userId);
         ui.refreshPlayerBase(player);
         // console.log("userid:", pbPlayer.userId , "id:", player.info.id, "玩家seatId:", player.gameData.seatId, "庄家seatId:",  PlayerMgr.ins.local.gameData.bankerSeatID)
         // 显示亲家子家ICON
         ui.refreshBankerIcon(player.gameData.seatId == PlayerMgr.ins.local.gameData.bankerSeatID);
-
         ui.clearCard();
-
         // 剩余手牌
         let isNoShowHu: boolean = true;
         for (let n of pbPlayer.remCards) {
@@ -436,7 +314,6 @@ export class CmdHandleSettleRound {
             }
             ui.addCard(ScMapping.cardId_s2c(n));
         }
-
         // 设置一个位置为横牌
         var fn = (cards: number[], idx = -1) => {
             for (let i = 0; i < cards.length; ++i) {
@@ -444,7 +321,6 @@ export class CmdHandleSettleRound {
                 ui.addCard(ScMapping.cardId_s2c(cards[i]), isV);
             }
         }
-
         // 位置到索引的映射
         var posToIdx = (pos: number): number => {
             var idx = -1;
@@ -457,17 +333,14 @@ export class CmdHandleSettleRound {
             }
             return idx;
         }
-
         // 明牌
         ui.addCardInterval();
         for (let pbFuLu of pbPlayer.fulus) {
-
             if (pbFuLu.fuluType == OpCode.OPE_LEFT_CHI ||
                 pbFuLu.fuluType == OpCode.OPE_MIDDLE_CHI ||
                 pbFuLu.fuluType == OpCode.OPE_RIGHT_CHI) {
                 fn(pbFuLu.cards, 0);
             } else if (pbFuLu.fuluType == OpCode.OPE_PENG) {
-
                 let idx = posToIdx(pbFuLu.pos);
                 fn(pbFuLu.cards, idx);
             } else if (pbFuLu.fuluType == OpCode.OPE_GANG || pbFuLu.fuluType == OpCode.OPE_GANG_HU) {
@@ -497,12 +370,9 @@ export class CmdHandleSettleRound {
                     ui.addCard(cardId, false);
                     ui.addCardBu(cardId);
                 }
-
             }
-
             // 间隔
             ui.addCardInterval(5);
-
         } // end for
 
 
@@ -590,13 +460,11 @@ export class CmdHandleSettleRound {
             // 用户点数
             // player.persentation.seat.score.string = pbPlayer.moneyPlat.toString() ;
             String3d.showScore(player.persentation.seat.score, pbPlayer.moneyPlat.toString());
-
         } // end for
     }
 
     // 设置点数UI
     static setUiDianShu(ui: UiSettleDianShu, pb: protocol.mahjong_jp.GameRoundResult): boolean {
-
         /*
             赢家输家所有的情况：
             1赢+3输，自摸。
@@ -605,7 +473,6 @@ export class CmdHandleSettleRound {
             2赢 + 2输，流局满贯
             3赢 + 1输
         */
-
         let win = Array<Player>();
         let lose = Array<Player>();
         // 分数是否有变化
@@ -613,10 +480,8 @@ export class CmdHandleSettleRound {
         ui.hideAllPlayers();
         for (let pbPlayer of pb.playerInfo) {
             let player = PlayerMgr.ins.all.get(pbPlayer.userId);
-
             let uiDianShuPlayer = ui.players[player.persentation.idx];
             uiDianShuPlayer.root.active = true;
-
             // 头像
             uiDianShuPlayer.icon.spriteFrame = player.persentation.info.icon.spriteFrame;
             // 昵称
@@ -624,40 +489,31 @@ export class CmdHandleSettleRound {
             // 点数
             // uiDianShuPlayer.score.string = pbPlayer.moneyPlat.toString() ;
             NumberRoll.exe(uiDianShuPlayer.score, 2, 0, pbPlayer.moneyPlat);
-
             // 增减点数
             // uiDianShuPlayer.scoreVariation.string = pbPlayer.turnMoney.toString() ;
             NumberRoll.exe(uiDianShuPlayer.scoreVariation, 2, 0, pbPlayer.turnMoneyAll);
             uiDianShuPlayer.scoreVariation.color = pbPlayer.turnMoneyAll >= 0 ? Color.GREEN : Color.RED;
-
             // 排名
             uiDianShuPlayer.rank.string = pbPlayer.rank.toString();
-
             // 输赢平。1 2 赢家 3 4 输家 0 平家
             if (pbPlayer.roundResult == 1 || pbPlayer.roundResult == 2) {
                 win.push(player);
             } else if (pbPlayer.roundResult == 3 || pbPlayer.roundResult == 4) {
                 lose.push(player);
             }
-
             if (pbPlayer.moneyPlat > 0) {
                 mScoreChange = true;
             }
-
-        } // end for
-
+        }
         // 显示转移箭头
         for (let t of ui.arrows) {
             t.hideAllArrows();
         }
-
         for (let loser of lose) {
             for (let winner of win) {
                 ui.arrows[loser.persentation.idx].arrows.get(winner.persentation.idx).active = true;
-            } // end for
-
-        } // end for
-
+            }
+        }
         return mScoreChange;
     }
 

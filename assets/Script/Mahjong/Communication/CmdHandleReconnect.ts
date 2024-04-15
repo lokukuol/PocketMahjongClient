@@ -61,14 +61,11 @@ import {DataParse} from "./DataParse";
 import {OpCode} from "./OpCode";
 
 export class CmdHandleReconnect {
-
     public static exe(data: Uint8Array) {
         GlobalVar.userGrabCard = null;
         Reset.exe();
-
         let pb = protocol.mahjong_jp.TableReconectInfo.decode(data);
         console.log("【断线重连】", pb);
-
         GameState.ins.doraValuesMap.clear();
         if (pb.doraCards) {
             pb.doraCards.forEach(value => {
@@ -76,28 +73,21 @@ export class CmdHandleReconnect {
                 GameState.ins.doraValuesMap.set(doraValue, true)
             });
         }
-
         this.dora(pb);
         this.center(pb);
-
         // 预处理玩家对象
         this.players(pb);
         this.players2(pb);
-
         this.local(pb);
-
         this.indicator(pb);
-
         // 操作倒计时
         this.countdown(pb);
-
         // 游戏状态 1: 游戏中，2: 非游戏中
         if (pb.gameState == 1) {
             // 游戏状态 0--游戏未开始（刚进入房间） 1--游戏准备开始 2--游戏开始 3--一场结束（只有一场结束才能退出房间）
             GameState.ins.gameStatus = 2;
             UiMain.ins.border.btnQuit.active = false;
             UiMain.ins.exitTable.hide();
-
             if (!UiMain.ins.uiAutoOpUI.root.active) {
                 UiMain.ins.uiAutoOpUI.root.active = true;
             }
@@ -107,7 +97,6 @@ export class CmdHandleReconnect {
             // 取消离开房间的展示，因为游戏准备状态，断线重连回来，也是非游戏中
             // UiMain.ins.exitTable.show();
         }
-
         // 设置XX局XX场
         GameState.ins.currQuan = pb.curQaun;
         DoraHint.ins.roundChangSet(pb.curQaun, pb.nRound, pb.nBenJu);
@@ -115,7 +104,6 @@ export class CmdHandleReconnect {
         PlayerMgr.ins.local.gameData.bankerSeatID = pb.bankSeatID;
         // 0--普通模式 1--钻石模式
         ClubEntity.isDiamond = pb.tablemode == 1 ? true : false;
-
         // 当前牌桌UUID
         ClubEntity.enterRoomUUID = pb.uuid;
         App.getInst(HttpCtrl).requestServer(EProtocolID.CLUB_GET_TABLEINFO, {tableId: pb.uuid}, new CallBack((params: any) => {
@@ -132,7 +120,6 @@ export class CmdHandleReconnect {
         let doraHint = DoraHint.ins;
         doraHint.gongTuoSet(pb.gongtuo);
         doraHint.benChangSet(pb.nBenJu);
-
         DoraHint.ins.showAllCardsBack();
         for (let i = 0; i < pb.doraCards.length; ++i) {
             let cardId = ScMapping.cardId_s2c(pb.doraCards[i]);
@@ -152,66 +139,48 @@ export class CmdHandleReconnect {
         const playerIDs: number[] = [];
         for (let pbPlayer of pb.players) {
             const id = pbPlayer.userId;
-
             playerIDs.push(id);
-
             let player = PlayerMgr.ins.all.get(id);
             if (player == null) {
                 player = new Player();
                 player.info.id = id;
                 PlayerMgr.ins.all.set(id, player);
             }
-
             player.gameData.seatId = pbPlayer.seatId;
-
             player.info.nickname = pbPlayer.nickname;
             player.info.dianShu = pbPlayer.dianshu;
-
             player.info.iconId = pbPlayer.headerId;
-
-
             player.gameData.isTrustee = pbPlayer.ai == 1 ? true : false;
             player.gameData.isReady = pbPlayer.isReady;
-
             DataParse.parsePlayerStatics(pbPlayer.statics, player);
-
         } // end for
-
         // 移除已不在桌上的玩家
         const invalidPlayerIDs: string[] = [];
-
         for (const [userID, _] of PlayerMgr.ins.all) {
             if (playerIDs.indexOf(Number(userID)) < 0) {
                 invalidPlayerIDs.push(userID);
             }
         }
-
         invalidPlayerIDs.forEach(id => {
             console.log(`delete invalid player: ${id}`);
             PlayerMgr.ins.all.delete(id);
         });
-
         // console.log("【断线重连】 player all", PlayerMgr.ins.all);
         PlayerViewHelper.exe(pb.bankSeatID);
     }
 
     private static players2(pb: protocol.mahjong_jp.TableReconectInfo) {
-
         console.log("=====断线重连==local:", PlayerMgr.ins.local);
         for (let pbPlayer of pb.players) {
             let player = PlayerMgr.ins.all.get(pbPlayer.userId);
-
             // 手牌
             let ids = new Array<string>();
             for (let n of pbPlayer.holds) {
                 ids.push(ScMapping.cardId_s2c(n));
             }
-
             if (player == PlayerMgr.ins.local) {
-
                 // 本机
                 FirstDrawHandcardLocal.exe(player, ids, false);
-
                 // 本机--新添加
                 let val = pbPlayer.ai == 1 ? true : false;
                 // UiMain.ins.btnTrustee.setMode(!val);
@@ -221,16 +190,13 @@ export class CmdHandleReconnect {
                 } else {
                     UiMain.ins.trusteeUI.hide();
                 }
-
                 // 本机不显示操作 UI
                 UiMain.ins.popup.op.root.active = false;
                 UiMain.ins.popup.select.root.active = false;
-
                 // 是否立直
                 PlayerMgr.ins.local.gameData.isLiZhi = pbPlayer.tingPai == 0 ? false : true;
                 // 立直数据
                 SettingsData.ins.isLizhi = pbPlayer.tingPai == 0 ? false : true;
-
             } else {
                 // 非本机
                 if (pb.curOutCardUid == Number(player.info.id)) {
@@ -240,13 +206,10 @@ export class CmdHandleReconnect {
                 } else {
                     FirstDrawHandcardNonlocal.exe(player, pbPlayer.holdCount, false);
                 }
-
             }
-
             // 打出去的牌
             let idxLiZhi = pbPlayer.lizhiPaiIndex;
             for (let i = 0; i < pbPlayer.outCards.length; ++i) {
-
                 let pbCardInfo = pbPlayer.outCards[i];
                 let cardId = ScMapping.cardId_s2c(pbCardInfo.outCard);
                 let card = DiscardedCardPlace.exe(player, cardId, idxLiZhi == i ? false : true, false);
@@ -254,41 +217,29 @@ export class CmdHandleReconnect {
                 if (pbCardInfo.moQie) {
                     CardHint.moQie(card);
                 }
-
             } // end for
-
             // 是否立直
             player.persentation.seat.flagLiZhi.active = pbPlayer.tingPai == 0 ? false : true;
-
             // 准备
             player.persentation.info.flagReady.active = pbPlayer.isReady;
-
             // 点数
-
-
             this.fuLu(player, pbPlayer);
-
         } // end for
 
         // 显示点数
         UiMain.ins.btnCenter.showDianShu();
-
         // 出牌固定时间
         GameState.ins.fixDurationDiscard = pb.outCardTimeOut;
         // 操作固定时间
         GameState.ins.fixDurationOp = pb.operationTimeOut;
-
     }
 
     // 副露
     private static fuLu(player: Player, pbPlayer: protocol.mahjong_jp.IPlayerInfoReconect) {
         console.log("副露：", pbPlayer.fulus);
         for (let fulu of pbPlayer.fulus) {
-
             let type = fulu.fuluType;
-
             var cardShown = new CardShown();
-
             // 牌值
             for (let n of fulu.cards) {
                 let cardId = ScMapping.cardId_s2c(n);
@@ -296,7 +247,6 @@ export class CmdHandleReconnect {
             }
             CardSort.exe(cardShown.cards);
             player.gameData.cardShown.push(cardShown);
-
             if (type & OpCode.OPE_LEFT_CHI) {
                 // 吃
                 cardShown.type = CardShownType.Chi;
@@ -325,7 +275,6 @@ export class CmdHandleReconnect {
                     type2 = CardShownType.PengNext
                 }
                 cardShown.type = type2;
-
             } else if (type & OpCode.OPE_GANG || type & OpCode.OPE_GANG_HU) {
                 // 明杠
                 var type2 = CardShownType.None;
@@ -337,7 +286,6 @@ export class CmdHandleReconnect {
                     type2 = CardShownType.GangNext
                 }
                 cardShown.type = type2;
-
             } else if (type & OpCode.OPE_AN_GANG) {
                 // 暗杠
                 cardShown.type = CardShownType.GangDark;
@@ -352,34 +300,25 @@ export class CmdHandleReconnect {
                     type2 = CardShownType.PengNextGang
                 }
                 cardShown.type = type2;
-
             }
-
-        } // end for
-
+        }
         CardShownDisplay.exe(player);
-
     }
 
     // 本机显示
     private static local(pb: protocol.mahjong_jp.TableReconectInfo) {
-
         // 摸牌完成标记
         FirstDrawHandcardLocal.isComplete = true;
-
         // 振听
         UiMain.ins.zhenTing.active = pb.isZhenTing;
-
         // 听牌提示
         DataParse.huCardInfo(pb.hucard);
-
         // console.log("refresh hand 1:", ...PlayerMgr.ins.local.gameData.handcard);
         // 摸起来的牌 游戏中才显示     // 游戏状态 1: 游戏中，2: 非游戏中
         if (pb.gameState == 1 && pb.byGrabCard != 0xFF) {
             let cardId = ScMapping.cardId_s2c(pb.byGrabCard);
             DrawCardLocal.exe(PlayerMgr.ins.local, cardId, false);
         }
-
         // console.log("refresh hand 2:", ...PlayerMgr.ins.local.gameData.handcard);
         // 操作者不能出的牌
         let touchHandcard = UiMain.ins.touchHandcard;
@@ -389,24 +328,16 @@ export class CmdHandleReconnect {
         }
         // console.log("refresh hand 3:", ...PlayerMgr.ins.local.gameData.handcard);
         touchHandcard.refresh();
-
-
         if (pb.gameState == 1) {
             // 游戏中
-
             for (let player of PlayerMgr.ins.all.values()) {
                 // 准备标致不显示
                 player.persentation.info.flagReady.active = false;
             } // end for
-
         }
-
-
         // 1.轮到用户出牌, 2.轮到用户操作, 3.不是轮到用户，闲置状态
         if (pb.curState == 1) {
-
         } else if (pb.curState == 2) {
-
             // 杠牌
             let gangIds: Array<string> = undefined;
             if (pb.gangCards != null) {
@@ -416,29 +347,22 @@ export class CmdHandleReconnect {
                 }
             }
             DataParse.parseOpUi(pb.nOpWeight, pb.preOutCardUid, ScMapping.cardId_s2c(pb.byOutCard), gangIds);
-
         }
-
     }
 
     // 操作倒计时
     private static countdown(pb: protocol.mahjong_jp.TableReconectInfo) {
-
         if (pb.fixedTimeout == -1) return;
-
         if (pb.fixedTimeout <= 0 && pb.diffTimeout <= 0) return;
-
         if (pb.diffTimeout < 0) {
             pb.diffTimeout = 0;
         }
         // 操作倒计时
         UiCountdown.ins.show(pb.fixedTimeout, pb.diffTimeout);
-
     }
 
     // 当前操作者
     private static indicator(pb: protocol.mahjong_jp.TableReconectInfo) {
-
         let id: any = pb.curOutCardUid;
         let player = PlayerMgr.ins.all.get(id);
         if (player == null) {
@@ -446,7 +370,5 @@ export class CmdHandleReconnect {
             return;
         }
         OpIndicator.exe(player);
-
     }
-
 }

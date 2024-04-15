@@ -174,7 +174,7 @@ export class HomeUiMainHall {
             return;
         }
         GlobalVar.willLoadMoudle = null;
-        SceneMgr.runScene("Mahjong", true, () => {
+        SceneMgr.runScene("Mahjong", false, () => {
             CommSend.enterRoom(roomID);
         }, null);
     }

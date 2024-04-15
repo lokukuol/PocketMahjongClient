@@ -44,11 +44,9 @@ class AppVarCls {
     remoteVersion: string;
     /**本地绑定的版本信息 */
     manifestUrl: Asset;
-
     serverUrl: string = "";
     /**远端版本号地址 */
     public remoteVerUrl: string = ``;
-
     isInReview: boolean = false;
 
     public get version(): string {

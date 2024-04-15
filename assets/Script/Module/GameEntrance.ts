@@ -55,7 +55,6 @@ export class GameEntrance extends Singleton {
         this.main = main;
         this.eventWaiter = new EventWaiter();
         // this.eventWaiter.onEvent(GameEntrance.VER_COMPARE_COMPLETED, this.onVerCompareCompleted, this);
-
         this.showLogin();
     }
 

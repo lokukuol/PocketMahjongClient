@@ -302,7 +302,7 @@ export class LoginRegisterUI extends Component {
 
             this.node.destroy();
             GlobalVar.willLoadMoudle = null;
-            SceneMgr.runScene("Home", false);
+            SceneMgr.runScene("Home", true);
         } else {
             LoginUiMain.ins.loadingND.active = false;
             LoginUiMain.ins.loginND.active = true;

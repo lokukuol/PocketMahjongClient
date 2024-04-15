@@ -262,7 +262,7 @@ export class LoginPhoneUI extends Component {
 
             this.node.destroy();
             GlobalVar.willLoadMoudle = null;
-            SceneMgr.runScene("Home", false);
+            SceneMgr.runScene("Home", true);
         } else {
             if (event.data?.msg) {
                 App.getInst(ToastUI).showTips(event.data.msg);

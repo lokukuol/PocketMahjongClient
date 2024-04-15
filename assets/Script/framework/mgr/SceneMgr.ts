@@ -73,15 +73,14 @@ export class SceneMgr {
     private static _loadSceneName: string = "";
     private static _loadSceneCallFunc: Function | null = null;
     private static _loadSceneCallThis: Object | null = null;
-    private static _onlyChangeScene: boolean = false;
-
+    private static _bReLogin: boolean = false;
     private static _curProtocolIDOfTempListener: EProtocolID | null = null;
 
-    static runScene(mSceneName, mOnlyChange: boolean = false, mCallFunc: Function = null, mThisArg: Object = null): void {
+    static runScene(mSceneName, bRelogin: boolean = false, mCallFunc: Function = null, mThisArg: Object = null): void {
         this._loadSceneName = mSceneName;
         this._loadSceneCallFunc = mCallFunc;
         this._loadSceneCallThis = mThisArg;
-        this._onlyChangeScene = mOnlyChange;
+        this._bReLogin = bRelogin;
         if (mSceneName == "Mahjong") {
             director.loadScene("LoadingScene", () => {
                 director.preloadScene(mSceneName, (completedCount: number, totalCount: number, item: any) => {
@@ -100,11 +99,9 @@ export class SceneMgr {
                     this._afterLoadHandle();
                 });
         }
-
     }
     public static runPureScene(mSceneName: string, mModuleName?: string): void {
         director.loadScene(mSceneName, (err, scene) => {
-
         })
     }
 
@@ -115,16 +112,16 @@ export class SceneMgr {
         switch (this._loadSceneName) {
             case `Home`:
                 console.log("【load prefabs】");
-                this._loadPrefabRes();
+                if (this._bReLogin) {
+                    this._reloginServer();
+                } else {
+                    this._loadSceneFinish();
+                }
                 break;
             case `Mahjong`:
                 // 加载预制体
                 PrefabMgr.init(() => {
                     CardInfo.init();
-                    // Sound.init() ; 
-                    // Music.init() ;
-                    // Music.play() ;
-
                     this._loadSceneFinish();
                 });
                 break;
@@ -134,12 +131,11 @@ export class SceneMgr {
         }
     }
 
-    private static _loadPrefabRes(): void {
+    public static loadPrefabRes(): void {
         resources.loadDir("prefab", Prefab, (err, data) => {
             // console.log("【加载prefab资源】", data);
             PrefabCache.init();
             PrefabCache.mapPrefab(data);
-
             this._loadAudioRes();
         });
     }
@@ -149,21 +145,15 @@ export class SceneMgr {
             console.log("【加载Audio资源】", data);
             AudioCache.init();
             AudioCache.mapAudio(data);
-
             SpriteMgr.init(this._onLoadSpritePrefComp.bind(this));
         });
     }
 
-
     private static _onLoadSpritePrefComp() {
-        // 3 获取游戏服务器地址
-
-        this._curProtocolIDOfTempListener = EProtocolID.GET_SERVER_URL;
-        ProtocolEventManager.on(this._curProtocolIDOfTempListener, this._onServerURLRespond, this, EEventListenerPriority.HIGHER);
-
-        ProtocolHTTPManager.load(EProtocolID.GET_SERVER_URL, {
-            account: LoginEnity.accountID,
-        }, false);
+        // 提前加载房间资源
+        PrefabMgr.init(() => {
+            CardInfo.init();
+        });
     }
 
     private static _onServerURLRespond(event) {
@@ -172,10 +162,8 @@ export class SceneMgr {
         if (event.success && event.data) {
             LoginEnity.serverURL = event.data.serverURL;
         }
-
         this._curProtocolIDOfTempListener = EProtocolID.PROFILE_REQ;
         ProtocolEventManager.on(this._curProtocolIDOfTempListener, this._onProfileRespond, this, EEventListenerPriority.HIGHER);
-
         // 4 获取个人信息
         ProtocolHTTPManager.load(EProtocolID.PROFILE_REQ, {
             accountId: LoginEnity.accountID,
@@ -185,12 +173,11 @@ export class SceneMgr {
     private static _onProfileRespond(event): void {
         ProtocolEventManager.off(event.protocolID, this._onProfileRespond, this);
         this._curProtocolIDOfTempListener = null;
-        console.log("========profile event:", event);
+        console.log("========_onProfileRespond event:", event);
         if (event.success && event.data.res == "SUCCESS") {
             LoginEnity.nickName = event.data["name"];
             LoginEnity.avatarTID = event.data["avatarId"];
         }
-
         //获取个人信息
         App.getInst(RoleCtrl).RoleSimpleInfoReq(Number(LoginEnity.accountID), new CallBack(() => {
             //初始化设置
@@ -198,14 +185,7 @@ export class SceneMgr {
             //获取背包信息
             App.getInst(BagCtrl).pbGetBag(LoginEnity.playerID);
             //获取weBao信息
-            App.getInst(ShopCtrl).GetWBBindInfoReq(LoginEnity.playerID);
-
-            // 获取出牌方式 操作方式 1双击出牌  2拖拽出牌
-            let cacheOperation = LocalCacheManager.read('operation');
-            if (cacheOperation && cacheOperation.type) {
-                App.getInst(SettingCtrl).set(eSettingKey.operationType, cacheOperation.type);
-            }
-
+            //App.getInst(ShopCtrl).GetWBBindInfoReq(LoginEnity.playerID);
             // 5 获取俱乐部个人信息
             App.getInst(ClubCtrl).GetPlayerInfoReq(LoginEnity.playerID, 0, new CallBack(this._onClubPlayerInforRespond, this));
         }, this), new CallBack(() => {
@@ -223,42 +203,37 @@ export class SceneMgr {
     private static _loadSceneFinish() {
         console.log("切换场景:", this._loadSceneName);
         director.loadScene(this._loadSceneName, (err, data) => {
-
-
-            if (this._loadSceneName === "Login") {
-
-            } else if (this._loadSceneName === "Home") {
-                // 在HomeInit中初始话，在数据回来比较快的情况下会导致空
-                if (!PlayerMgr.ins) {
-                    PlayerMgr.ins = new PlayerMgr();
-                }
-                if (!PlayerMgr.ins.local) {
-                    PlayerMgr.ins.local = new Player();
-                }
-                console.log("seatoriend:", PlayerMgr.ins.local.gameData.seatOrien);
-                console.log("player mgr:", PlayerMgr.ins);
-
-                GlobalVar.currScene = ESceneVar.SCENE_HOME;
-                if (!this._onlyChangeScene) {
-                    // 连接登录游戏服
-                    // Comm.connect3(LoginEnity.account, LoginEnity.token, LoginEnity.accountID, LoginEnity.serverURL);
-                    // if(!WebSocketMgr.Inst.isConnect()){
-                    //     WebSocketMgr.Inst.connect(LoginEnity.serverURL);
-                    // }
-                    if (LoginEnity.serverURL) {
-                        let websocket = WebSocketMgr.Inst;
-                        websocket.reset();
-                        websocket.newConnect(LoginEnity.serverURL);
-                        websocket.setExpireInterval(15);
-                    }
-                }
-            } else if (this._loadSceneName == "Mahjong") {
-                GlobalVar.currScene = ESceneVar.SCENE_GAME;
-            }
+            this._updateCurrentScene();
             if (this._loadSceneCallFunc) {
                 this._loadSceneCallFunc.call(this._loadSceneCallThis);
             }
         });
+    }
+
+    private static _updateCurrentScene() {
+        if (this._loadSceneName === "Login") {
+            GlobalVar.currScene = ESceneVar.SCENE_LOAD;
+        } else if (this._loadSceneName === "Home") {
+            GlobalVar.currScene = ESceneVar.SCENE_HOME;
+            if (LoginEnity.serverURL) {
+                let websocket = WebSocketMgr.Inst;
+                websocket.reset();
+                console.log("========connecting server:", LoginEnity.serverURL);
+                websocket.newConnect(LoginEnity.serverURL);
+                websocket.setExpireInterval(15);
+            }
+        } else if (this._loadSceneName === "Mahjong") {
+            GlobalVar.currScene = ESceneVar.SCENE_GAME;
+        }
+    }
+
+    private static _reloginServer(): void {
+        // 3 获取游戏服务器地址
+        this._curProtocolIDOfTempListener = EProtocolID.GET_SERVER_URL;
+        ProtocolEventManager.on(this._curProtocolIDOfTempListener, this._onServerURLRespond, this, EEventListenerPriority.HIGHER);
+        ProtocolHTTPManager.load(EProtocolID.GET_SERVER_URL, {
+            account: LoginEnity.accountID,
+        }, false);
     }
 }
 

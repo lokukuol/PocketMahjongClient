@@ -34,10 +34,8 @@ import {Label, Node, Sprite} from "cc";
 import {UiPopupHelper} from "../../../../framework/utils/UiPopupHelper";
 import {NumberRoll} from "../../../../framework/utils/NumberRoll";
 
-
 // 点数结算。4家的概括信息。
 export class UiSettleDianShu {
-
     public static ins: UiSettleDianShu = null;
 
     public root: Node;
@@ -46,7 +44,6 @@ export class UiSettleDianShu {
     public btnOK: Node;
 
     public init(node: Node) {
-
         this.root = node.getChildByPath("SettleAllPlayers");
         this.root.active = false;
         this.btnOK = this.root.getChildByPath("btnOK");
@@ -60,24 +57,17 @@ export class UiSettleDianShu {
         this.arrows.push(UiSettleDianShuArrow.create(this.root.getChildByPath("Player2Arrow")));
         this.arrows.push(UiSettleDianShuArrow.create(this.root.getChildByPath("Player3Arrow")));
         this.arrows.push(UiSettleDianShuArrow.create(this.root.getChildByPath("Player4Arrow")));
-
     }
 
     public show() {
         UiPopupHelper.show(this.root);
-
         // 重新开始数字滚动。
         for (let uiplayer of this.players) {
-
             let n = Number(uiplayer.score.string);
             NumberRoll.exe(uiplayer.score, 2, 0, n);
-
             n = Number(uiplayer.scoreVariation.string);
             NumberRoll.exe(uiplayer.scoreVariation, 2, 0, n);
-
-        } // end for
-
-
+        }
     }
 
     public hide() {
@@ -89,15 +79,11 @@ export class UiSettleDianShu {
             e.root.active = false;
         }
     }
-
 }
 
 // 玩家项
 export class UiSettleDianShuPlayer {
-
-
     public static create(node: Node): UiSettleDianShuPlayer {
-
         var ui = new UiSettleDianShuPlayer();
         ui.init(node);
         return ui;
@@ -112,7 +98,6 @@ export class UiSettleDianShuPlayer {
 
     public init(node: Node) {
         this.root = node;
-
         this.icon = this.root.getChildByPath("Icon/Icon").getComponent(Sprite);
         this.nickname = this.root.getChildByPath("Nickname").getComponent(Label);
         this.nickname.string = "";
@@ -122,14 +107,11 @@ export class UiSettleDianShuPlayer {
         this.score.string = "0";
         this.scoreVariation = this.root.getChildByPath("ScoreVariation").getComponent(Label);
         this.scoreVariation.string = "0";
-
     }
-
 }
 
 // 箭头
 export class UiSettleDianShuArrow {
-
     public root: Node;
     public arrows = new Map<number, Node>();
 
@@ -145,8 +127,7 @@ export class UiSettleDianShuArrow {
         for (let i = 0; i < this.root.children.length; ++i) {
             var t = this.root.children[i];
             this.arrows.set(Number(t.name), t);
-        } // end for
-
+        }
     }
 
     public hideAllArrows() {
@@ -154,7 +135,5 @@ export class UiSettleDianShuArrow {
             if (node == null) continue;
             node.active = false;
         }
-
     }
-
 }

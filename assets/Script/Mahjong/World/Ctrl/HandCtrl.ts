@@ -83,33 +83,25 @@ export class HandCtrl {
 
     // 明牌动画
     public static cardShown(player: Player, cardShown: CardShown) {
-
         let hand = player.persentation.seat.hand;
         let root = hand.root;
         let sa = hand.sa;
-
         let state = hand.sa.getState("lpHandsAction");
         state.speed = 4;
         state.wrapMode = AnimationClip.WrapMode.Normal;
-
         root.active = true;
         sa.play("lpHandsAction");
-
         // 放牌目标移动位置
         let pos1 = new Vec3(0, 0, 0.115);
         // 回缩的位置
         let pos2 = new Vec3(0, 0.25, 0.541);
-
         pos1 = cardShown.cards[1].presentation3d.root.worldPosition;
         pos2 = pos1.clone().add(new Vec3(0, 0.25, 0.44));
-
         root.position = pos2;
-
         // tween( root ).sequence( 
         //     tween( root ).delay( 0.1 ) , 
         //     tween( root ).call( ()=>{ sa.play( "lpHandsAction" ) ; } )
         // ).start() ;
-
         tween(root).sequence(
             tween(root).to(0.3, {worldPosition: pos1}),
             tween(root).call(() => {
@@ -121,7 +113,5 @@ export class HandCtrl {
                 root.active = false;
             })
         ).start();
-
     }
-
 }

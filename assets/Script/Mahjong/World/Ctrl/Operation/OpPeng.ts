@@ -40,16 +40,13 @@ import {RelativeOrien, RelativeOrienCalc} from "../../Support/RelativeOrien";
 import {HandCtrl} from "../HandCtrl";
 
 export class OpPeng {
-
     // player 碰牌者。cardIds 碰牌者的牌。player2 被碰的玩家。
     public static exe(player: Player, cardId: string, player2: Player) {
-
         // 取出玩家打出的最后一张牌
         var discard = player2.gameData.discard;
         var card = discard[discard.length - 1];
         discard.splice(discard.length - 1, 1);
         card.presentation3d.root.destroy();
-
 
         // 从手牌中移除牌。只用剔除2张
         HandcardOp.remove(player, [cardId, cardId]);

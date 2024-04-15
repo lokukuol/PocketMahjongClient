@@ -35,19 +35,14 @@ import {PrefabMgr} from "./Prefab";
 
 // 3D 空间的艺术字
 export class String3d {
-
     public static showScore(node: Node, str: string) {
         // console.log("show score str:", str)
         this.show(node, str, PrefabMgr.root.getChildByPath("Font/Score"));
-
     }
 
-
     public static showCenter(node: Node, str: string) {
-
         // console.log("root:", PrefabMgr.root, "str:", str);
         this.show(node, str, PrefabMgr.root.getChildByPath("Font/Center"));
-
     }
 
     // 新添加中控台显示房间信息（四人场 东风战 ID:）
@@ -55,30 +50,22 @@ export class String3d {
         // console.log("==========: str:",str)
         // console.log("root:", PrefabMgr.root, "str:", str);
         this.show(node, str, PrefabMgr.root.getChildByPath("Font/Zhong"));
-
     }
 
     public static show(node: Node, str: string, pfParent: Node) {
         this.clear(node);
-
         let chNodes = new Array<Node>();
-
         let len = 0;
         for (let i = 0; i < str.length; ++i) {
             let ch = str.charAt(i);
             let pfCh = pfParent.getChildByPath(ch);
-
             // console.log("===pfch:", pfCh, "====ch:", ch);
             let chNode = instantiate(pfCh);
             chNode.setParent(node);
             chNodes.push(chNode);
-
             chNode.getComponent(MeshRenderer).material;
-
             len += chNode.scale.x;
-
         } // end for
-
         let n = len / -2;
         // 居中排列
         for (let i = 0; i < chNodes.length; ++i) {
@@ -87,17 +74,12 @@ export class String3d {
             let x2 = x / 2;
             node.position = new Vec3(n + x2, 0, 0);
             n += x;
-
         } // end for
-
     }
 
     private static clear(node: Node) {
-
         for (let i = node.children.length - 1; i >= 0; --i) {
             node.children[i].destroy();
         } // end for
-
     }
-
 }

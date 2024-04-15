@@ -38,9 +38,8 @@ export class HomeReconect {
     public static exe(data: Uint8Array) {
         console.log("【大厅收到 重连】");
         GlobalVar.willLoadMoudle = null;
-        SceneMgr.runScene("Mahjong", true, () => {
+        SceneMgr.runScene("Mahjong", false, () => {
             CommSend.reconectRoom();
         }, this);
     }
 }
-

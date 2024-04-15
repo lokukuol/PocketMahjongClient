@@ -36,6 +36,7 @@ import {Card} from "../Card/Card";
 export enum CardShownType {
     // 无类型
     None,
+
     // 吃
     Chi,
 
@@ -72,4 +73,3 @@ export class CardShown {
     // 组成明牌的牌子
     public cards = new Array<Card>();
 }
-

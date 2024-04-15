@@ -37,13 +37,10 @@ import {HandcardOp} from "../../Support/HandcardOp";
 import {HandCtrl} from "../HandCtrl";
 import {SoundEffect} from "../../Support/Audio";
 
-
 // 吃的操作
 export class OpChi {
-
     // player 操作者。cardIds 操作者去吃的牌。player2 被吃者。cardId 被吃的牌
     public static exe(player: Player, cardIds: Array<string>, player2: Player, cardId: string) {
-
         // 取出被吃玩家打出的最后一张牌
         if (player2 != null) {
             var discard = player2.gameData.discard;
@@ -54,18 +51,12 @@ export class OpChi {
                     cardLast.presentation3d.root.destroy();
                 }
             }
-
         }
-
-
         // 从手牌中移除牌
         HandcardOp.remove(player, cardIds);
-
         var cardShown = CardShownFactory.createChi(cardIds, cardId);
         player.gameData.cardShown.push(cardShown);
-
         CardShownDisplay.exe(player);
-
         HandCtrl.cardShown(player, cardShown);
         SoundEffect.chi();
 

@@ -100,25 +100,36 @@ export class ScMapping {
         if (this.dataS2C != null) return;
         this.dataS2C = new Map<number, string>();
         let mapping = this.dataS2C;
-
+        // 万筒条
         for (let i = 0; i < 9; ++i) {
             mapping.set(0x01 + i, "wan" + (i + 1));
             mapping.set(0x11 + i, "tong" + (i + 1));
             mapping.set(0x21 + i, "tiao" + (i + 1));
-        } // end for
+        }
+        // 赤牌
         mapping.set(0x00, "wan5_chibao");
         mapping.set(0x10, "tong5_chibao");
         mapping.set(0x20, "tiao5_chibao");
-
+        // 东南西北
         mapping.set(0x31, "ziDong");
         mapping.set(0x32, "ziNan");
         mapping.set(0x33, "ziXi");
         mapping.set(0x34, "ziBei");
+        // 中发白
         mapping.set(0x41, "ziZhong");
         mapping.set(0x42, "ziFa");
         mapping.set(0x43, "ziBai");
+        // 空
         mapping.set(0x44, "kong")
-
+        // 春夏秋冬梅兰菊竹
+        mapping.set(0x51, "huaChun");
+        mapping.set(0x52, "huaXia");
+        mapping.set(0x53, "huaQiu");
+        mapping.set(0x54, "huaDong");
+        mapping.set(0x55, "huaMei");
+        mapping.set(0x56, "huaLan");
+        mapping.set(0x57, "huaJu");
+        mapping.set(0x58, "huaZhu");
         // 反向映射
         this.dataC2S = new Map<string, number>();
         mapping.forEach((v, k) => {

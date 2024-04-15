@@ -34,42 +34,30 @@ import {Card} from "./Card";
 
 // 牌的排序
 export class CardSort {
-
     public static exe(cards: Array<Card>) {
-
         this.initData();
-
         cards.sort((a, b) => {
             var aN = this.data.get(a.id);
             var bN = this.data.get(b.id);
-
             if (aN < bN) return -1;
             else if (aN == bN) return 0;
             else if (aN > bN) return 1;
-
         });
-
     }
 
     public static initData() {
-
         if (this.data != null) return;
-
         this.data = new Map<string, number>();
-
         // 万、同、条、字牌，红5排在普通5前。字牌顺序是东南西北白发中。
-
         for (var i = 1; i <= 9; ++i) {
             this.data.set("wan" + i, i * 2 + 100);
             this.data.set("tong" + i, i * 2 + 200);
             this.data.set("tiao" + i, i * 2 + 300);
         }
-
         // 赤宝
         this.data.set("wan5_chibao", 5 * 2 - 1 + 100);
         this.data.set("tong5_chibao", 5 * 2 - 1 + 200);
         this.data.set("tiao5_chibao", 5 * 2 - 1 + 300);
-
         // 字牌
         this.data.set("ziDong", 1 + 400);
         this.data.set("ziNan", 2 + 400);
@@ -78,9 +66,16 @@ export class CardSort {
         this.data.set("ziBai", 5 + 400);
         this.data.set("ziFa", 6 + 400);
         this.data.set("ziZhong", 7 + 400);
-
+        // 春夏秋冬梅兰菊竹
+        this.data.set("huaChun", 1 + 500);
+        this.data.set("huaXia", 2 + 500);
+        this.data.set("huaQiu", 3 + 500);
+        this.data.set("huaDong", 4 + 500);
+        this.data.set("huaMei", 5 + 500);
+        this.data.set("huaLan", 6 + 500);
+        this.data.set("huaJu", 7 + 500);
+        this.data.set("huaZhu", 8 + 500);
     }
 
     public static data: Map<string, number> = null;
-
 }

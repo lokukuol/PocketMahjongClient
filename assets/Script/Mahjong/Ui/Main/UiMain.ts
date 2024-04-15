@@ -48,9 +48,7 @@ import {UITrustee} from "./UITrustee";
 import {UiWillStartGame} from "./UiWillStartGame";
 
 export class UiMain {
-
     public static ins: UiMain = new UiMain();
-
     public root: Node = null;
     // 玩家信息集合
     public playerInfoCollection = new UiPlayerInfoCollection();
@@ -62,13 +60,9 @@ export class UiMain {
     public zhenTing: Node;
     // 弹出UI集合
     public popup = new UiPopup();
-
     // public btnTrustee = new UiBtnTrustee() ;
-
     public touchHandcard = new UiTouchHandcard();
-
     public btnCenter = new UiBtnCenter();
-
     public uiAutoOpUI = new UiAutoOp();
     // 退出房间
     public exitTable = new UiExitTable();
@@ -82,46 +76,30 @@ export class UiMain {
     public popUpWin: HomePopupUI = new HomePopupUI();
 
     public init() {
-
         this.root = find("Canvas");
-
         this.touchHandcard.init(this.root);
-
         // UiDebug.init() ;
-
         this.localHandcard = this.root.getChildByPath("LocalHandcard");
         this.playerInfoCollection.init(this.root);
-
         this.border.init(this.root);
-
         this.popup.init(this.root);
-
         this.zhenTing = this.root.getChildByPath("ZhenTing");
         this.zhenTing.active = false;
-
         // this.btnTrustee.init( this.root ) ;
-
-
         DoraHint.ins = new DoraHint();
         DoraHint.ins.init(this.root);
-
         for (let btn of this.root.getComponentsInChildren(Button)) {
             btn.node.on(Input.EventType.TOUCH_END, SoundEffect.buttonClick.bind(SoundEffect));
         }
-
         // new UiAutoOp().init( this.root ) ;
         this.uiAutoOpUI.init(this.root);
-
         this.btnCenter.init(this.root);
-
         this.exitTable.init(this.root.getChildByPath("ExitTable"));
         this.trusteeUI.init(this.root.getChildByPath("TrusteeUI"));
         this.willStartUI.init(this.root.getChildByPath("WillStartGame"));
         this.startGameAnim.init(this.root.getChildByPath("StartGameAnim"));
-
         let popupWin = this.root.getChildByPath("PopupWin")
         this.popUpWin.toInit(popupWin);
         App.getInst(ViewMgr).addLayer(eLayer.uiModuleLayer, popupWin);
     }
-
 }

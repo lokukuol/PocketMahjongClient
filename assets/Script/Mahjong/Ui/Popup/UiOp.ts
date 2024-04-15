@@ -333,33 +333,8 @@ export class UiOp {
     }
 
     private onClick_Peng() {
-
         var select = UiMain.ins.popup.select;
-        // select.removeAllItems() ; 
-
-        // var cardId = this.cardId ; 
-        // console.log("peng carid:", this.cardId);
-        // select.addItem( [ cardId , cardId ] ).root.on( Input.EventType.TOUCH_END , ()=>{ 
-        //     console.log( "点击 碰 无赤宝" ) ; 
-        //     CommSend.peng( cardId , 0 ) ;
-        // } ) ;
-
-        // // 处理 三赤的情况
-        // var chibao = ChiBaoHelper.getChiBaoId( cardId ) ; 
-        // if( chibao != null ) {
-        //     var cardIds2 = [ chibao , cardId ] ;
-        //     if( HandcardOp.has( PlayerMgr.ins.local , cardIds2 ) == true ) {
-        //         // 有赤宝牌
-
-        //         select.addItem( cardIds2 ).root.on( Input.EventType.TOUCH_END , ()=>{
-        //             console.log( "点击 碰 有赤宝" ) ; 
-        //             CommSend.peng( cardId , 1 ) ;
-        //         } ) ;
-
-        //     }
-        // } 
         OpRed.doHandPengCardOperate(this.cardId);
-
         // 弹出选择或直接发送
         select.title.string = "请选择要碰的牌";
         if (select.items.length > 1) {

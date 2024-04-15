@@ -45,16 +45,13 @@ export class HandcardOp {
 
     // 在手牌中删除，销毁牌实体。
     public static remove(player: Player, cardIds: Array<string>) {
-
         if (player == PlayerMgr.ins.local) {
             //  本机
             this.removeLoacl(player, cardIds);
             return;
         }
-
         // 非本机
         this.removeRnd3d(player, cardIds);
-
     }
 
     // 本机删除。销毁牌实体。
@@ -71,14 +68,11 @@ export class HandcardOp {
                 handcard.splice(idx, 1);
             }
         } // end for
-
         HandcardPersentation.rearrageLocal(player);
-
     }
 
     // 随机找2个位置删除。销毁牌实体。
     public static removeRnd3d(player: Player, cardIds: Array<string>) {
-
         var handcard = player.gameData.handcard;
         // 随机找2个位置删除
         var idx = Math.floor(Math.random() * (handcard.length - cardIds.length));
@@ -87,9 +81,7 @@ export class HandcardOp {
             // 销毁表现
             card.presentation3d.root.destroy();
         }
-
         HandcardPersentation.rearrage3d(player);
-
     }
 
     // 是否拥有指定的手牌。数量匹配。
@@ -158,7 +150,6 @@ export class HandcardPersentation {
 
     // 手牌显示对其 3D 空间。缓动移动
     public static rearrage3d(player: Player) {
-
         let handcard = player.gameData.handcard;
         for (let i = 0; i < handcard.length; ++i) {
             let card = handcard[i];
@@ -167,37 +158,28 @@ export class HandcardPersentation {
                 let a = 1;
             }
             tween(root).to(0.2, {position: new Vec3(i * (CardInfo.cardSize.x + this.interval))}).start();
-
         }
-
     }
 
     // 手牌显示对其 本机 2D。缓动移动
     public static rearrageLocal(player: Player) {
-
         let handcard = player.gameData.handcard;
-
         // 排序
         CardSort.exe(handcard);
-
         let interval = PrefabMgr.card2d.get("tiao1").getComponent(UITransform).contentSize.width;
-
         for (let i = 0; i < handcard.length; ++i) {
             let card = handcard[i];
             let pos = new Vec3(i * interval, 0, 0);
             // card.presentation2d.root.position = pos ;
             tween(card.presentation2d.root).to(0.3, {position: pos}).start();
         } // end for
-
     }
 
     public static updateDoraFlashEffectLocal(): void {
         const tiles = PlayerMgr.ins.local.gameData.handcard;
-
         // 宝牌特效
         tiles.forEach(tile => {
             const tileValue = ScMapping.cardId_c2s(tile.id);
-
             if (tileUtils.isDoraTile(tileValue)) {
                 CardDisplay.showCardUIFlash(tile);
             } else {

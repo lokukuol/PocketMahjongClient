@@ -59,7 +59,6 @@ export class HomeCommImmediate {
         // repeated  PushPlayerInfo Players = 5;
         // 1 俱乐部解散
         if (data.Code == 1) {
-
         }
         // 2 收到加入俱乐部申请
         else if (data.Code == 2) {
@@ -74,7 +73,6 @@ export class HomeCommImmediate {
                 // 0 不返回统计 1 返回俱乐部统计 2 返回友人场统计
                 mode: 0,
             }, false);
-
             // 更新俱乐部列表
             let mParamObj = {"playerId": LoginEnity.playerID};
             ProtocolHTTPManager.load(EProtocolID.CLUB_GET_CLUBLIST_REQ, mParamObj, false);
@@ -124,16 +122,15 @@ export class HomeCommImmediate {
                 "clubId": ClubEntity.recentClubID,
             };
             ProtocolHTTPManager.load(EProtocolID.CLUB_GET_INFOR_REQ, mParams, false);
-
         }
-            // 9 勾玉变化 / 10 铜币变化
-            // else if (data.Code === 9 || data.Code === 10) {
-            //     ProtocolHTTPManager.load(EProtocolID.CLUB_GET_PLAYER_INFOR_REQ, {
-            //         playerId: LoginEnity.playerID,
-            //         // 0 不返回统计 1 返回俱乐部统计 2 返回友人场统计
-            //         mode: 0,
-            //     }, false);
-            // }
+        // 9 勾玉变化 / 10 铜币变化
+        // else if (data.Code === 9 || data.Code === 10) {
+        //     ProtocolHTTPManager.load(EProtocolID.CLUB_GET_PLAYER_INFOR_REQ, {
+        //         playerId: LoginEnity.playerID,
+        //         // 0 不返回统计 1 返回俱乐部统计 2 返回友人场统计
+        //         mode: 0,
+        //     }, false);
+        // }
         // 9 匹配成功
         else if (data.Code === 9) {
             // 推送和查询返回失败有时间差，不是在首页场景则忽略消息
@@ -152,6 +149,5 @@ export class HomeCommImmediate {
                 }, this);
             }, 3000)
         }
-
     }
 }

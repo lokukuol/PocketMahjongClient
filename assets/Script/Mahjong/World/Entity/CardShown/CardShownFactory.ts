@@ -36,26 +36,20 @@ import {CardSort} from "../Card/CardSort";
 import {CardShown, CardShownType} from "./CardShown";
 
 export class CardShownFactory {
-
     /*
         创建 吃。
         cardIds 去吃的牌。
         CardId 被吃的牌。
         顺序：被吃的牌，2张自己的（从小到大）
-
     */
     public static createChi(cardIds: Array<string>, cardId: string): CardShown {
-
         var cardShown = new CardShown();
         cardShown.type = CardShownType.Chi;
-
         for (var id of cardIds) {
             cardShown.cards.push(CardFactory.create3d(id));
         }
         CardSort.exe(cardShown.cards);
-
         cardShown.cards.unshift(CardFactory.create3d(cardId));
-
         return cardShown;
     }
 

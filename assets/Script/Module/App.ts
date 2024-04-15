@@ -30,13 +30,18 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import {Player, PlayerMgr} from "../Mahjong/World/Entity/Player/Player";
+import { SceneMgr } from '../framework/mgr/SceneMgr';
+
 /**
  * 开放对外接口
  */
-
 export type Constructor<T = unknown> = new (...args: any[]) => T;
 
 export class App {
+    // 初始化app变量
+    private static initApp: boolean = false;
+
     /**
      * 获取单例
      * @param constructor
@@ -44,6 +49,23 @@ export class App {
      */
     public static getInst<T>(constructor: Constructor<T>): T {
         return constructor[`_ins`];
+    }
+
+    public static Init(): void {
+        if (this.initApp) {
+            return;
+        }
+        this.initApp = true;
+        // 在HomeInit中初始话，在数据回来比较快的情况下会导致空
+        if (!PlayerMgr.ins) {
+            PlayerMgr.ins = new PlayerMgr();
+        }
+        if (!PlayerMgr.ins.local) {
+            PlayerMgr.ins.local = new Player();
+        }
+        console.log("seatoriend:", PlayerMgr.ins.local.gameData.seatOrien);
+        console.log("player mgr:", PlayerMgr.ins);
+        SceneMgr.loadPrefabRes();
     }
 }
 

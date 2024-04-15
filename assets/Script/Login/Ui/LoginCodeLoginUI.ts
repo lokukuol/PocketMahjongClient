@@ -234,7 +234,7 @@ export class LoginCodeLoginUI extends Component {
 
             this.node.destroy();
             GlobalVar.willLoadMoudle = null;
-            SceneMgr.runScene("Home", false);
+            SceneMgr.runScene("Home", true);
         } else {
             App.getInst(ToastUI).showTips("登录失败");
 

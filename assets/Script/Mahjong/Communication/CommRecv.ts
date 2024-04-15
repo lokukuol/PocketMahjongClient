@@ -79,150 +79,147 @@ import {CmdHandleSettleRound} from "./CmdHandleSettleRound";
 import {CommSend} from "./CommSend";
 import {DataParse} from "./DataParse";
 import {OpCode} from "./OpCode";
-import {PacketHelper} from "./Packet";
+import {Packet, PacketHelper} from "./Packet";
 import {EventConst} from "../../const/EventConst";
 
 // 通信数据接收处理
 export class CommRecv {
-
     public static exe(data: ArrayBuffer): void {
         let packet = PacketHelper.parsePacketData(data);
-        if (packet.header.state == 1) {
+        if (packet.header.state != 0) {
             this.onErr(packet.body);
             return;
         }
         console.log("receive cmd:", packet.header.cmd);
-        // console.log("receive state:", packet.header.state);
-        // console.log("GlobalVar.loadGameOver:", GlobalVar.loadGameOver);
-        // 0是正常pb
-        if (packet.header.state === 0) {
-            App.getInst(SocketCtrl).C2SResp(packet.header.cmd, packet.body);
-
-            GlobalVar.userGrabCard = null;
-            switch (packet.header.cmd) {
-                // 登录成功，返回用户信息
-                case 9001:
-                    this.onLoginPlayerInfor(packet.body);
-                    break;
-                case 10001:
-                    this.onLogin(packet.body);
-                    break;
-                // （10002）异地登录
-                case 10002:
-                    this.onElseLogin();
-                    break;
-                case 10003:
-                    this.onHeartbeat(packet.body);
-                    break;
-                // （14002）及时通讯
-                case 14002:
-                    this.onCommImmediate(packet.body);
-                    break;
-                // （8709--0x2205）用户执行操作
-                case 0x2205:
-                    GlobalVar.loadGameOver && this.respOp(packet.body);
-                    break;
-                // （8729--0x2219）获取桌子ID
-                case 0x2219:
-                    this.onGetRoom(packet.body);
-                    break;
-                // （8961--0x2301）广播用户准备
-                case 0x2301:
-                    GlobalVar.loadGameOver && this.broadcastPlayerReady(packet.body);
-                    break;
-                // （8962--0x2302）服务器广播用户出牌
-                case 0x2302:
-                    GlobalVar.loadGameOver && this.broadcastPlayerDiscard(packet.body);
-                    break;
-                // （8963--0x2303）广播用户托管
-                case 0x2303:
-                    GlobalVar.loadGameOver && this.broadcastPlayerTrustee(packet.body);
-                    break;
-                // （8964--0x2304）服务器告诉客户端可以进行操作(例如抢杠和, 发生在用户杠的时候，通知客户端可以抢杠和)
-                case 0x2304:
-                    GlobalVar.loadGameOver && this.opQiangGangHe(packet.body);
-                    break;
-                // （8967--0x2307）进入房间成功，返回桌子信息
-                case 0x2307:
-                    GlobalVar.loadGameOver && this.onEnterRoomSucceed(packet.body);
-                    break;
-                // （8968--0x2308）断线重连绑定成功
-                case 0x2308:
-                    this.reconnect(packet.body);
-                    break;
-                // （8969--0x2309）广播用户进入
-                case 0x2309:
-                    GlobalVar.loadGameOver && this.broadcastPlayerEnter(packet.body);
-                    break;
-                // （8970--0x230A）广播用户退出
-                case 0x230A:
-                    GlobalVar.loadGameOver && this.broadcastPlayerExit(packet.body);
-                    break;
-                // （8971--0x230B）广播掉线的用户
-                case 0x230B:
-                    GlobalVar.loadGameOver && this.broadcastPlayerOffline(packet.body);
-                    break;
-                // （8983--0x2317）服务器发牌
-                case 0x2317:
-                    GlobalVar.loadGameOver && this.getHandcard(packet.body);
-                    break;
-                // （8984--0x2318）服务器抓牌发给用户（本机抓牌）
-                case 0x2318:
-                    GlobalVar.loadGameOver && this.drawCard(packet.body);
-                    break;
-                // （8985--0x2319）无效操作(例如: 杠的时候发的牌不合法)
-                case 0x2319:
-                    GlobalVar.loadGameOver && this.opInvalid(packet.body);
-                    break;
-                // （8987--0x231B）游戏准备开始，不能离开房间
-                case 0x231B:
-                    GlobalVar.loadGameOver && this.gameWillStart(packet.body);
-                    break;
-                // （8988--0x231C）服务器广播游戏开始
-                case 0x231C:
-                    GlobalVar.loadGameOver && this.gameStart(packet.body);
-                    break;
-                // （8989--0x231D）广播用户进行了什么操作(例如: 杠)
-                case 0x231D:
-                    GlobalVar.loadGameOver && this.broadcastPlayerOp(packet.body);
-                    break;
-                // （8990--0x231E）广播当前玩家ID
-                case 0x231E:
-                    GlobalVar.loadGameOver && this.broadcastDrawCard(packet.body);
-                    break;
-                // （8991--0x231F）一局结算
-                case 0x231F:
-                    GlobalVar.loadGameOver && this.gameRoundEnd(packet.body);
-                    break;
-                // （8992--0x2320）广播游戏停止(一盘游戏结束，日麻一盘游戏分为很多局组成)
-                case 0x2320:
-                    GlobalVar.loadGameOver && this.gameEnd(packet.body);
-                    break;
-                // （9024--0x2340）杠dora指示牌
-                case 0x2340:
-                    GlobalVar.loadGameOver && this.gangDoraCard(packet.body);
-                    break;
-                // （9025--0x2341）回复跳过
-                case 0x2341:
-                    GlobalVar.loadGameOver && this.opJump(packet.body);
-                    break;
-                // （9026--0x2342）服务器广播立直更新数据
-                case 0x2342:
-                    GlobalVar.loadGameOver && this.updatePlayer(packet.body);
-                    break;
-                // （9028--0x2344）用户退出
-                case 0x2344:
-                    GlobalVar.loadGameOver && this.onExitStatus(packet.body);
-                    break;
-                // （9002--0x232A）踢出玩家
-                case 0x232A:
-                    GlobalVar.loadGameOver && this.onKickUser(packet.body);
-                    break;
-            }
+        App.getInst(SocketCtrl).C2SResp(packet.header.cmd, packet.body);
+        GlobalVar.userGrabCard = null;
+        switch (packet.header.cmd) {
+            // 登录成功，返回用户信息
+            case 9001:
+                this.onLoginPlayerInfor(packet.body);
+                break;
+            case 10001:
+                this.onLogin(packet.body);
+                break;
+            // （10002）异地登录
+            case 10002:
+                this.onElseLogin();
+                break;
+            case 10003:
+                this.onHeartbeat(packet.body);
+                break;
+            // （14002）及时通讯
+            case 14002:
+                this.onCommImmediate(packet.body);
+                break;
+            // （8729--0x2219）获取桌子ID
+            case 0x2219:
+                this.onGetRoom(packet.body);
+                break;
+            // （8968--0x2308）断线重连绑定成功
+            case 0x2308:
+                this.reconnect(packet.body);
+                break;
         }
-        // 1 pb时通用的错误返回
-        else if (packet.header.state === 1) {
+        if (GlobalVar.loadGameOver) {
+            this.OnProcessGamePacket(packet);
+        }
+    }
 
+    static OnProcessGamePacket(packet: Packet): void {
+        switch (packet.header.cmd) {
+            // （8709--0x2205）用户执行操作
+            case 0x2205:
+                this.respOp(packet.body);
+                break;
+            // （8961--0x2301）广播用户准备
+            case 0x2301:
+                this.broadcastPlayerReady(packet.body);
+                break;
+            // （8962--0x2302）服务器广播用户出牌
+            case 0x2302:
+                this.broadcastPlayerDiscard(packet.body);
+                break;
+            // （8963--0x2303）广播用户托管
+            case 0x2303:
+                this.broadcastPlayerTrustee(packet.body);
+                break;
+            // （8964--0x2304）服务器告诉客户端可以进行操作(例如抢杠和, 发生在用户杠的时候，通知客户端可以抢杠和)
+            case 0x2304:
+                this.opQiangGangHe(packet.body);
+                break;
+            // （8967--0x2307）进入房间成功，返回桌子信息
+            case 0x2307:
+                this.onEnterRoomSucceed(packet.body);
+                break;
+            // （8969--0x2309）广播用户进入
+            case 0x2309:
+                this.broadcastPlayerEnter(packet.body);
+                break;
+            // （8970--0x230A）广播用户退出
+            case 0x230A:
+                this.broadcastPlayerExit(packet.body);
+                break;
+            // （8971--0x230B）广播掉线的用户
+            case 0x230B:
+                this.broadcastPlayerOffline(packet.body);
+                break;
+            // （8983--0x2317）服务器发牌
+            case 0x2317:
+                this.getHandcard(packet.body);
+                break;
+            // （8984--0x2318）服务器抓牌发给用户（本机抓牌）
+            case 0x2318:
+                this.drawCard(packet.body);
+                break;
+            // （8985--0x2319）无效操作(例如: 杠的时候发的牌不合法)
+            case 0x2319:
+                this.opInvalid(packet.body);
+                break;
+            // （8987--0x231B）游戏准备开始，不能离开房间
+            case 0x231B:
+                this.gameWillStart(packet.body);
+                break;
+            // （8988--0x231C）服务器广播游戏开始
+            case 0x231C:
+                this.gameStart(packet.body);
+                break;
+            // （8989--0x231D）广播用户进行了什么操作(例如: 杠)
+            case 0x231D:
+                this.broadcastPlayerOp(packet.body);
+                break;
+            // （8990--0x231E）广播当前玩家ID
+            case 0x231E:
+                this.broadcastDrawCard(packet.body);
+                break;
+            // （8991--0x231F）一局结算
+            case 0x231F:
+                this.gameRoundEnd(packet.body);
+                break;
+            // （8992--0x2320）广播游戏停止(一盘游戏结束，日麻一盘游戏分为很多局组成)
+            case 0x2320:
+                this.gameEnd(packet.body);
+                break;
+            // （9024--0x2340）杠dora指示牌
+            case 0x2340:
+                this.gangDoraCard(packet.body);
+                break;
+            // （9025--0x2341）回复跳过
+            case 0x2341:
+                this.opJump(packet.body);
+                break;
+            // （9026--0x2342）服务器广播立直更新数据
+            case 0x2342:
+                this.updatePlayer(packet.body);
+                break;
+            // （9028--0x2344）用户退出
+            case 0x2344:
+                this.onExitStatus(packet.body);
+                break;
+            // （9002--0x232A）踢出玩家
+            case 0x232A:
+                this.onKickUser(packet.body);
+                break;
         }
     }
 
@@ -358,6 +355,7 @@ export class CommRecv {
 
         GlobalVar.reconnectData = null;
         CmdHandleSettleRound.isGameEnd = true;
+        GlobalVar.isReconnect = false;
 
         // 清空听牌数据
         UiMain.ins.border.btnTing.active = false;
@@ -403,7 +401,6 @@ export class CommRecv {
     // （8989--0x231D）广播用户进行了什么操作(例如: 杠)
     static broadcastPlayerOp(data: Uint8Array) {
         let pb = protocol.mahjong_jp.UserOperatorRespond.decode(data);
-
         // 操作者
         let player = PlayerMgr.ins.all.get(pb.operatorUserID);
         // 操作的牌
@@ -415,31 +412,22 @@ export class CommRecv {
                 player2 = v;
             }
         });
-
         console.log("【8989-0x231D 广播玩家操作】" + pb.operationValue, "pb:", pb);
-
         // 显示操作者
         OpIndicator.exe(player);
-
-
         // 操作时间
         if (player.info.id == PlayerMgr.ins.local.info.id) {
             // 本机出牌
             UiCountdown.ins.show(GameState.ins.fixDurationDiscard, pb.diffTimeout);
-
             DataParse.huCardInfo(pb.hucard);
-
-            // Jacket：这个地方加个不能出的牌，因为吃碰的时候，有食替规则，吃，或者，碰，后出牌时，有些牌不能出
+            // 这个地方加个不能出的牌，因为吃碰的时候，有食替规则，吃，或者，碰，后出牌时，有些牌不能出
             let handcardTouch = UiMain.ins.touchHandcard;
             handcardTouch.clearDiscardLimit();
-
             for (let item of pb.disableCards) {
                 handcardTouch.cardIdsCannot.add(ScMapping.cardId_s2c(item));
             } // end for
             handcardTouch.refresh();
         }
-
-
         if (pb.operationValue & OpCode.OPE_LEFT_CHI) {
             // 左吃
             let cardIds = ChiHelper.getCardIdsToChi(ChiType.Left, cardId);
@@ -475,7 +463,6 @@ export class CommRecv {
             } else {
                 OpChi.exe(player, cardIds, player2, cardId);
             }
-
             if (player == PlayerMgr.ins.local) {
                 UiMain.ins.touchHandcard.enabled = true;
             }
@@ -488,7 +475,6 @@ export class CommRecv {
             } else {
                 OpPeng.exe(player, cardId, player2);
             }
-
             if (player == PlayerMgr.ins.local) {
                 UiMain.ins.touchHandcard.enabled = true;
             } else {
@@ -505,8 +491,6 @@ export class CommRecv {
             } else {
                 OpGang.exe(player, cardId, player2);
             }
-
-
             if (player == PlayerMgr.ins.local) {
                 UiMain.ins.touchHandcard.enabled = true;
             } else {
@@ -514,7 +498,6 @@ export class CommRecv {
                 UiMain.ins.popup.op.root.active = false;
                 UiCountdown.ins.hide();
             }
-
         } else if (pb.operationValue & OpCode.OPE_AN_GANG) {
             // 暗杠
             // OpGang.dark(player, cardId);
@@ -535,10 +518,7 @@ export class CommRecv {
             OpGang.patch(player, cardId);
             // }
         }
-
         // UiMain.ins.touchHandcard.clearDiscardLimit() ;
-
-
     }
 
     // 广播抓牌// （8990--0x231E）广播当前玩家ID
@@ -866,7 +846,6 @@ export class CommRecv {
     private static onGetRoom(data: Uint8Array) {
         let obj = protocol.mahjong_jp.GameID.decode(data);
         console.log("【8729--0x2219】获取桌子ID：", obj);
-        // CommSend.enterRoom(obj.id);
         director.emit(EventConst.EVT_GET_ROOM_ID, obj.id);
     }
 
@@ -874,44 +853,36 @@ export class CommRecv {
     private static onErr(data: Uint8Array) {
         let obj = protocol.pb_common.pbError.decode(data);
         console.log("协议错误：" + obj.errCode + " " + obj.errMsg);
-
+        // TODO: 添加通用弹框
     }
 
     private static onLoginPlayerInfor(data: Uint8Array): void {
         let pb = protocol.mahjong_jp.PlayerInfo.decode(data);
-
         console.log("【9001】登录获取个人信息 :", pb);
     }
 
     private static onLogin(data: Uint8Array) {
         let pb = protocol.account.LoginResp.decode(data);
-
         const localPlayer = PlayerMgr.ins.local;
         if (localPlayer.info.id !== pb.userID) {
             let targetPlayer: Player | null = null;
-
             for (const [userID, player] of PlayerMgr.ins.all) {
                 if (userID === pb.userID) {
                     targetPlayer = player;
                     break;
                 }
             }
-
             if (targetPlayer) {
                 PlayerMgr.ins.local = targetPlayer;
             } else {
                 PlayerMgr.ins.all.delete(localPlayer.info.id);
-
                 localPlayer.info.id = pb.userID;
                 PlayerMgr.ins.all.set(pb.userID, localPlayer);
             }
         }
-
         console.log("【10001】登录成功 :", pb.userID);
         console.log("10001登录成功 :", PlayerMgr.ins.local);
-
         WebSocketMgr.Inst.startMonitoringHeart();
-
         EventManager.emit('accountDidSignIn', {
             success: true,
             errorDesc: "",
@@ -920,27 +891,21 @@ export class CommRecv {
 
     // （10002）异地登录
     private static onElseLogin() {
-
         console.log("【10002】 异地登录 :");
-
-
         WebSocketMgr.Inst.closeNetWork(true);
         if (GlobalVar.currScene == ESceneVar.SCENE_HOME) {
             HomeUiMain.ins.popUpWin.showPopup(PrefabConst.REPEAT_LOGIN);
         } else if (GlobalVar.currScene == ESceneVar.SCENE_GAME) {
             UiMain.ins.popUpWin.showPopup(PrefabConst.REPEAT_LOGIN);
         }
-
     }
 
     private static onHeartbeat(data: Uint8Array): void {
         const pb = protocol.account.Heartbeat.decode(data);
         console.log("【10003】心跳包：", pb);
-
         if (pb.timestamp !== null && pb.timestamp !== undefined) {
             TimeUtils.updateServerTime(pb.timestamp);
         }
-
         WebSocketMgr.Inst.onHeartbeatRespond();
     }
 
@@ -1020,11 +985,11 @@ export class CommRecv {
         if (GlobalVar.currScene == ESceneVar.SCENE_GAME) {
             CmdHandleReconnect.exe(data);
             GlobalVar.reconnectData = null;
-        } else if (GlobalVar.currScene == ESceneVar.SCENE_HOME) {
+            GlobalVar.isReconnect = false;
+        } else {
+            //  if (GlobalVar.currScene == ESceneVar.SCENE_HOME)
             HomeReconect.exe(data);
         }
-        // CmdHandleReconnect.exe( data ) ;
-
     }
 
     // （8969--0x2309）广播用户进入
@@ -1220,9 +1185,7 @@ export class CommRecv {
 
     // 得到手牌// （8983--0x2317）服务器发牌
     static getHandcard(data: Uint8Array) {
-
         Reset.exe();
-
         // 抓牌动画显示完成后，才可以操作
         UiMain.ins.touchHandcard.enabled = false;
         let onComplete = FirstDrawHandcardLocal.onComplete;
@@ -1230,24 +1193,18 @@ export class CommRecv {
         onComplete.push(() => {
             UiMain.ins.touchHandcard.enabled = true;
         });
-
         var pb = protocol.mahjong_jp.SendCard.decode(data);
         console.log("【8983--0x2317】服务器发牌：", pb)
-
         let local = PlayerMgr.ins.local;
-
         for (var cardIdS of pb.handCard.card) {
             var cardId = ScMapping.cardId_s2c(cardIdS);
             var card = CardFactory.create2d(cardId);
             let handCard = local.gameData.handcard;
             handCard.push(card);
             // CardSort.exe( handCard ) ;
-
         } // end for
-
         // 听牌提示
         DataParse.huCardInfo(pb.hucard);
-
         // 打印调试
         {
             let str = "", str2 = "";
@@ -1259,10 +1216,7 @@ export class CommRecv {
             str = "收到手牌:玩家ID:" + PlayerMgr.ins.local.info.id + " 牌值:" + str + " 映射:" + str2;
             console.log(str);
             console.log("==HandCard len:", pb.handCard.card.length);
-
         }
-
-
     }
 
     // （9028--0x2344）用户退出

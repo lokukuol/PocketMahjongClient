@@ -89,7 +89,7 @@ export class LoginUiMain {
             LoginEnity.accountID = cacheAccount.accountId;
             LoginEnity.playerID = parseInt(cacheAccount.accountId);
             GlobalVar.willLoadMoudle = null;
-            SceneMgr.runScene("Home", false);
+            SceneMgr.runScene("Home", true);
         } else {
             // LoginUiMain.ins.uiModuleMgr.showLoginUI("PhoneLoginPref", "LoginPhoneUI");
         }

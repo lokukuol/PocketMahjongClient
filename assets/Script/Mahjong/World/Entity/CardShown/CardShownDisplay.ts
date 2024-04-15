@@ -43,25 +43,18 @@ const SPACING = 0.004;
 
 // 明牌展示
 export class CardShownDisplay {
-
     public static exe(player: Player) {
-
         var offset = 0;
         for (var cardShown of player.gameData.cardShown) {
-
             this.show(cardShown);
-
             this.addOffset(cardShown.cards, offset);
             offset += -this.getWidth(cardShown.type);
-
             // 设置父节点
             var parent = player.persentation.seat.shown;
             for (var card of cardShown.cards) {
                 card.presentation3d.root.setParent(parent, false);
             }
-
         } // end for
-
     }
 
     public static show(cardShown: CardShown) {
@@ -103,9 +96,7 @@ export class CardShownDisplay {
 
     // 吃
     public static showChi(cardShown: CardShown) {
-
         this.showH(cardShown.cards, 0);
-
     }
 
     // 碰
@@ -172,20 +163,16 @@ export class CardShownDisplay {
 
     // 显示一组牌。idx 横放的牌
     public static showH(cards: Array<Card>, idx: number) {
-        //
         var offset = 0;
         // 碰后加杠 把加杠的牌放在横的牌上面
         for (var i = cards.length - 1; i >= 0; --i) {
-
             var card = cards[i];
-
             // 宝牌特效
             if (tileUtils.isDoraTile(ScMapping.cardId_c2s(card.id))) {
                 CardDisplay.showCardFlash(card);
             } else {
                 CardDisplay.removeCardFlash(card);
             }
-
             if (i == idx) {
                 // 横放
                 CardDisplay.showLieAnticlockwise90(card);
@@ -194,7 +181,6 @@ export class CardShownDisplay {
                 offset -= (CardInfo.cardSize.z + SPACING);
                 continue;
             }
-
             CardDisplay.showLie(card);
             card.presentation3d.root.position = new Vec3(offset - CardInfo.cardSize.x / 2 - SPACING, 0, 0);
             offset -= (CardInfo.cardSize.x + SPACING);
@@ -235,11 +221,9 @@ export class CardShownDisplay {
 
     // 加上一个X偏移量
     public static addOffset(cards: Array<Card>, offset: number) {
-
         for (var card of cards) {
             card.presentation3d.root.position = card.presentation3d.root.position.add(new Vec3(offset, 0, 0));
         } // end for
-
     }
 
     public static updateDoraFlashEffect(player: Player): void {

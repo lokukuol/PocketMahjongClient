@@ -94,10 +94,10 @@ export class WebSocketMgr {
             }
 
             // 更新weibao余额
-            else if (GlobalVar.currScene === ESceneVar.SCENE_HOME) {
-                //更新余额
-                App.getInst(ShopCtrl).GetWBBindInfoReq(LoginEnity.playerID);
-            }
+            // else if (GlobalVar.currScene === ESceneVar.SCENE_HOME) {
+            //     //更新余额
+            //     App.getInst(ShopCtrl).GetWBBindInfoReq(LoginEnity.playerID);
+            // }
         }.bind(this));
     }
 

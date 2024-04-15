@@ -35,68 +35,50 @@ import {String3d} from "./String3d";
 
 // 游戏空间节点引用
 export class WorldNode {
-
     public static ins: WorldNode;
     public root: Node;
     public table: WorldNodeTable = new WorldNodeTable();
     public seats: Array<WorldNodeSeat> = new Array<WorldNodeSeat>();
     public info = new WorldNodeInfoTableCenter();
-
 }
 
 // 桌子节点
 export class WorldNodeTable {
-
     public root: Node;
-
 }
 
 // 桌位节点
 export class WorldNodeSeat {
-
     public root: Node;
-
     // 手牌
     public handcard: Node;
-
     // 出牌区
     public discarded: Node;
-
     // 鸣牌区
     public shown: Node;
-
     // 得分
-    // public score : Label3D ; 
-
+    // public score : Label3D ;
     public score: Node;
-
     // 手
     public hand: Hand;
-
     // 立直标志
     public flagLiZhi: Node;
-
 }
 
 // 手模型
 export class Hand {
-
     public root: Node;
     public main: Node;
     public sa: SkeletalAnimation;
-
 }
 
 // 桌子中间的展示信息
 export class WorldNodeInfoTableCenter {
-
     public root: Node;
-
     // 局次
     public round: Node;
     // 剩余的牌
     public left: Node;
-
     // nQuan 0-3 东南西北，nRound 第N局
     public setRound(nQuan: number, nRound: number) {
         console.log("set round quan:", nQuan, "round:", nRound);
@@ -105,7 +87,6 @@ export class WorldNodeInfoTableCenter {
         // this.round.string = strs[ n ]  ;
         nQuan = nQuan % 4;// 防止溢出
         String3d.showCenter(this.round, strs[nQuan] + strs2[nRound] + "局");
-
     }
 
     public setLeft(n: number) {
@@ -123,27 +104,19 @@ export class WorldNodeInfoTableCenter {
         let strs = ["", "东风战", "东南战"];
         nQuan = nQuan % 3;
         String3d.showZhong(this.round, "四人场");
-
         String3d.showZhong(this.left, strs[nQuan]);
         // String3d.showZhong(this.left, "D"+nTableID);
-
     }
-
 }
 
 // 初始化
 export class WorldNodeInit {
-
     public static exe() {
-
         WorldNode.ins = new WorldNode();
         var ins = WorldNode.ins;
-
         ins.root = find("World");
-
         // 桌子
         ins.table.root = ins.root.getChildByPath("Table");
-
         // 座位
         let seats = ins.root.getChildByPath("Seat");
         for (var node of seats.children) {
@@ -156,24 +129,18 @@ export class WorldNodeInit {
             // seat.score = node.getChildByPath( "Score" ).getComponent( Label3D ) ;
             // seat.score.string = "" ; 
             seat.score = node.getChildByPath("Score");
-            ;
             seat.flagLiZhi = node.getChildByPath("FlagLiZhi");
             seat.flagLiZhi.active = false;
-
             let hand = new Hand();
             seat.hand = hand;
             hand.root = node.getChildByPath("Hand");
             hand.main = hand.root.getChildByPath("Main");
             hand.sa = hand.main.getComponent(SkeletalAnimation);
             hand.root.active = false;
-
         } // end for
-
         // 桌子中心展示的信息
         ins.info.root = ins.root.getChildByPath("Info");
         ins.info.round = ins.info.root.getChildByPath("Round");
         ins.info.left = ins.info.root.getChildByPath("Left");
-
     }
-
 }
