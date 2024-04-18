@@ -91,7 +91,7 @@ export class SceneMgr {
                     });
             });
         } else {
-            console.log("【runscene:】", mSceneName)
+            console.log(new Date().toLocaleString(), "【runscene:】", mSceneName)
             director.preloadScene(mSceneName, (completedCount: number, totalCount: number, item: any) => {
                     // console.log("=====progres comp:", completedCount, "total:", totalCount, "item:", item);
                 },
@@ -111,7 +111,8 @@ export class SceneMgr {
     private static _afterLoadHandle() {
         switch (this._loadSceneName) {
             case `Home`:
-                console.log("【load prefabs】");
+                console.log(new Date().toLocaleString(), "========xingneng 1");
+                console.log(new Date().toLocaleString(), "【load prefabs】");
                 if (this._bReLogin) {
                     this._reloginServer();
                 } else {
@@ -132,17 +133,19 @@ export class SceneMgr {
     }
 
     public static loadPrefabRes(): void {
+        console.time('loadPrefabRes');
         resources.loadDir("prefab", Prefab, (err, data) => {
-            // console.log("【加载prefab资源】", data);
+            console.log(new Date().toLocaleString(), "【加载prefab资源】");
             PrefabCache.init();
             PrefabCache.mapPrefab(data);
             this._loadAudioRes();
         });
+        console.timeEnd('loadPrefabRes');
     }
 
     private static _loadAudioRes(): void {
         resources.loadDir("Audio", AudioClip, (err, data) => {
-            console.log("【加载Audio资源】", data);
+            console.log(new Date().toLocaleString(), "【加载Audio资源】", data);
             AudioCache.init();
             AudioCache.mapAudio(data);
             SpriteMgr.init(this._onLoadSpritePrefComp.bind(this));
@@ -150,30 +153,28 @@ export class SceneMgr {
     }
 
     private static _onLoadSpritePrefComp() {
+        console.time('_onLoadSpritePrefComp');
         // 提前加载房间资源
         PrefabMgr.init(() => {
             CardInfo.init();
         });
+        console.timeEnd('_onLoadSpritePrefComp');
     }
 
     private static _onServerURLRespond(event) {
-        console.log("服务器地址：", event);
+        console.log(new Date().toLocaleString(), "========xingneng 2");
+        console.log(new Date().toLocaleString(), "服务器地址：", event);
         LoginEnity.serverURL = null;
         if (event.success && event.data) {
             LoginEnity.serverURL = event.data.serverURL;
         }
-        this._curProtocolIDOfTempListener = EProtocolID.PROFILE_REQ;
-        ProtocolEventManager.on(this._curProtocolIDOfTempListener, this._onProfileRespond, this, EEventListenerPriority.HIGHER);
-        // 4 获取个人信息
-        ProtocolHTTPManager.load(EProtocolID.PROFILE_REQ, {
-            accountId: LoginEnity.accountID,
-        }, false);
     }
 
     private static _onProfileRespond(event): void {
         ProtocolEventManager.off(event.protocolID, this._onProfileRespond, this);
         this._curProtocolIDOfTempListener = null;
-        console.log("========_onProfileRespond event:", event);
+        console.log(new Date().toLocaleString(), "========xingneng 3");
+        console.log(new Date().toLocaleString(), "========_onProfileRespond event:", event);
         if (event.success && event.data.res == "SUCCESS") {
             LoginEnity.nickName = event.data["name"];
             LoginEnity.avatarTID = event.data["avatarId"];
@@ -197,16 +198,19 @@ export class SceneMgr {
     }
 
     private static _onClubPlayerInforRespond(params: protocol.club.IGetPlayerInfoResp): void {
+        console.log(new Date().toLocaleString(), "========xingneng 4");
         this._loadSceneFinish();
     }
 
     private static _loadSceneFinish() {
-        console.log("切换场景:", this._loadSceneName);
+        console.log(new Date().toLocaleString(), "========xingneng 5");
+        console.log(new Date().toLocaleString(), "切换场景:", this._loadSceneName);
         director.loadScene(this._loadSceneName, (err, data) => {
             this._updateCurrentScene();
             if (this._loadSceneCallFunc) {
                 this._loadSceneCallFunc.call(this._loadSceneCallThis);
             }
+            console.log(new Date().toLocaleString(), "========xingneng 6");
         });
     }
 
@@ -215,13 +219,7 @@ export class SceneMgr {
             GlobalVar.currScene = ESceneVar.SCENE_LOAD;
         } else if (this._loadSceneName === "Home") {
             GlobalVar.currScene = ESceneVar.SCENE_HOME;
-            if (LoginEnity.serverURL) {
-                let websocket = WebSocketMgr.Inst;
-                websocket.reset();
-                console.log("========connecting server:", LoginEnity.serverURL);
-                websocket.newConnect(LoginEnity.serverURL);
-                websocket.setExpireInterval(15);
-            }
+            this._connectGameServer();
         } else if (this._loadSceneName === "Mahjong") {
             GlobalVar.currScene = ESceneVar.SCENE_GAME;
         }
@@ -234,6 +232,23 @@ export class SceneMgr {
         ProtocolHTTPManager.load(EProtocolID.GET_SERVER_URL, {
             account: LoginEnity.accountID,
         }, false);
+
+        this._curProtocolIDOfTempListener = EProtocolID.PROFILE_REQ;
+        ProtocolEventManager.on(this._curProtocolIDOfTempListener, this._onProfileRespond, this, EEventListenerPriority.HIGHER);
+        // 4 获取个人信息
+        ProtocolHTTPManager.load(EProtocolID.PROFILE_REQ, {
+            accountId: LoginEnity.accountID,
+        }, false);
+    }
+
+    private static _connectGameServer(): void {
+        if (LoginEnity.serverURL && this._bReLogin) {
+            let websocket = WebSocketMgr.Inst;
+            websocket.reset();
+            console.log(new Date().toLocaleString(), "========connecting server:", LoginEnity.serverURL);
+            websocket.newConnect(LoginEnity.serverURL);
+            websocket.setExpireInterval(15);
+        }
     }
 }
 

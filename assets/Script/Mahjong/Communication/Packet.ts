@@ -75,7 +75,6 @@ export class PacketHelper {
         return dv.buffer;
     }
 
-
     public static makePacketData2(cmd: number, body?: Uint8Array): ArrayBuffer {
         let packet = new Packet();
         packet.header.cmd = cmd;

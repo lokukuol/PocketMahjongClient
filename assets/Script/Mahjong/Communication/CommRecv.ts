@@ -90,7 +90,7 @@ export class CommRecv {
             this.onErr(packet.body);
             return;
         }
-        console.log("receive cmd:", packet.header.cmd);
+        console.log(new Date().toLocaleString(), "receive cmd:", packet.header.cmd);
         App.getInst(SocketCtrl).C2SResp(packet.header.cmd, packet.body);
         GlobalVar.userGrabCard = null;
         switch (packet.header.cmd) {
