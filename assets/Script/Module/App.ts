@@ -66,7 +66,7 @@ export class App {
         console.log("seatoriend:", PlayerMgr.ins.local.gameData.seatOrien);
         console.log("player mgr:", PlayerMgr.ins);
         // TODO: 后续优化异步加载资源
-        SceneMgr.loadPrefabRes();
+        //SceneMgr.loadPrefabRes();
     }
 }
 

@@ -70,7 +70,7 @@ export class HotUpdate {
 
     public setText(str: string): void {
         this.currentPlatform.string = str;
-    }
+    } 
 
 
     public updateProgress(value: number, msg: string): void {

@@ -38,7 +38,7 @@ export namespace ProtocolPacker {
     const PROTOCOL_HEADER_LENGTH = 14;
     const PROTOCOL_DATA_LENGTH_OFFSET = 10;
 
-    export function pack<T extends EProtocolID>(protocolID: T, data: IProtocolData[T]['req']): ArrayBuffer {
+    export function pack<T extends EProtocolID>(protocolID: T, data: any): ArrayBuffer {
         const encoder = queryProtocolConfig(protocolID)?.encoder;
         /** "buffer" here is a Buffer extends Uint8Array */
         const buffer = encoder?.encode?.(data).finish();

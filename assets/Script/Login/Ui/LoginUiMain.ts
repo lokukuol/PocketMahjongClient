@@ -62,7 +62,7 @@ export class LoginUiMain {
         this.btnNode = this.root.getChildByPath("btnNode");
 
         App.getInst(ViewMgr).addLayer(eLayer.uiModuleLayer, this.loginND);
-        this.uiModuleMgr.toInit(this.loginND);
+        this.uiModuleMgr.toInit(this.loginND);       
 
         App.getInst(ToastUI).toInit(this.root);
 
@@ -72,7 +72,7 @@ export class LoginUiMain {
 
         // 获取TOKEN信息，自动登录(打包时取值，不打包设为null)
         let cacheAccount = null;//
-        // 测试服暂时不保存账号，方便测试
+        // 测试服暂时不保存账号，方便测试     
         if (AppVar.isRelease) {
             cacheAccount = LocalCacheManager.read('account');//null;//
         } else {
@@ -82,7 +82,7 @@ export class LoginUiMain {
         if (cacheAccount && cacheAccount.account.length > 0 && cacheAccount.token.length > 0
             && (cacheAccount.expiration === undefined || cacheAccount.expiration > TimeUtils.getServerTime())) {
             LoginUiMain.ins.loadingND.active = true;
-            this.btnNode.active = false;
+            this.btnNode.active = false; 
 
             LoginEnity.account = cacheAccount.account;
             LoginEnity.token = cacheAccount.token;

@@ -31,13 +31,13 @@
  ****************************************************************************/
 
 import {Constructor} from "cc";
-import protocol, {mahjong_jp} from "../../protocols/protocol.js";
+import protocol from "../../protocols/protocol.js";
 // import protocol from "../../../protocols/protocol.js";
 export {protocol};
-
+ 
 export enum EProtocolID {
     /* 登录 */
-    ACCOUNT_TOKEN = 10000,
+    ACCOUNT_TOKEN = 10000, 
     ACCOUNT_LOGIN = 10001,
     ACCOUNT_LOGGED_IN_ELSEWHERE = 10002,
     ACCOUNT_HEARTBEAT = 10003,
@@ -497,8 +497,16 @@ export interface IProtocolConfig {
     decoder?: CoderConstructor,
     httpAPI?: string,
 };
-
-const _configs: { [id in EProtocolID]: IProtocolConfig } = {
+// const configs1: { [id in EProtocolID]:IProtocolConfig} = {
+//     //const _configs: { [id in EProtocolID]: IProtocolConfig } = {
+//     [EProtocolID.ACCOUNT_TOKEN]: {
+//         encoder: protocol.account.TokenReq,
+//         decoder: protocol.account.TokenResp,
+//         httpAPI: 'account'
+//     }
+// }  
+const _configs = {
+    //const _configs: { [id in EProtocolID]: IProtocolConfig } = {
     [EProtocolID.ACCOUNT_TOKEN]: {
         encoder: protocol.account.TokenReq,
         decoder: protocol.account.TokenResp,
@@ -509,10 +517,17 @@ const _configs: { [id in EProtocolID]: IProtocolConfig } = {
         decoder: protocol.account.LoginResp,
         httpAPI: 'account'
     },
-    [EProtocolID.ACCOUNT_LOGGED_IN_ELSEWHERE]: {},
-    [EProtocolID.ACCOUNT_HEARTBEAT]: {decoder: protocol.account.Heartbeat},
-    [EProtocolID.ACCOUNT_LOGOUT]: {encoder: null, decoder: null, httpAPI: 'account'},
+    [EProtocolID.ACCOUNT_LOGGED_IN_ELSEWHERE]: {
 
+    },
+    [EProtocolID.ACCOUNT_HEARTBEAT]: {
+        decoder: protocol.account.Heartbeat
+    },
+    [EProtocolID.ACCOUNT_LOGOUT]: {
+        encoder: null, 
+        decoder: null, 
+        httpAPI: 'account'
+    },
     [EProtocolID.GET_SERVER_URL]: {
         encoder: protocol.account.ServerURLReq,
         decoder: protocol.account.ServerURLResp,
@@ -580,8 +595,12 @@ const _configs: { [id in EProtocolID]: IProtocolConfig } = {
         httpAPI: 'turntable'
     },
 
-    [EProtocolID.PUSH_BAG_ITEMS_CHANGE]: {decoder: protocol.push.InventoryChange},
-    [EProtocolID.PUSH_INFO_CHANGE]: {decoder: protocol.push.InfoChange},
+    [EProtocolID.PUSH_BAG_ITEMS_CHANGE]: {
+        decoder: protocol.push.InventoryChange
+    },
+    [EProtocolID.PUSH_INFO_CHANGE]: {
+        decoder: protocol.push.InfoChange
+    },
 
     [EProtocolID.TASK_INFO_LIST]: {
         encoder: protocol.task.reqInfo,
@@ -598,14 +617,20 @@ const _configs: { [id in EProtocolID]: IProtocolConfig } = {
         decoder: protocol.task.jackpotRewardResp,
         httpAPI: 'task'
     },
-    [EProtocolID.TASK_TASK_STATUS]: {decoder: protocol.task.noticeTaskStatusUpdate, httpAPI: 'task'},
+    [EProtocolID.TASK_TASK_STATUS]: {
+        decoder: protocol.task.noticeTaskStatusUpdate, 
+        httpAPI: 'task'
+    },
     [EProtocolID.TASK_JACKPOT_REWARD]: {
         encoder: protocol.task.jackpotRewardReq,
         decoder: protocol.task.jackpotRewardResp,
         httpAPI: 'task'
     },
 
-    [EProtocolID.PUSH_TRACE_INFO]: {encoder: protocol.trace.traceInfo, decoder: protocol.trace.traceStatus},
+    [EProtocolID.PUSH_TRACE_INFO]: {
+        encoder: protocol.trace.traceInfo, 
+        decoder: protocol.trace.traceStatus
+    },
 
     // [EProtocolID.HOLDEM_GAME_SYNC]: {decoder: protocol.texas_holdem.GameSync},
     // [EProtocolID.HOLDEM_GAME_START]: {decoder: protocol.texas_holdem.GameStart},
@@ -624,7 +649,9 @@ const _configs: { [id in EProtocolID]: IProtocolConfig } = {
     //     encoder: protocol.texas_holdem.PlayerActionReq,
     //     decoder: protocol.texas_holdem.PlayerAction
     // },
-    [EProtocolID.HOLDEM_PLAYER_TIMEOUT]: {},
+    [EProtocolID.HOLDEM_PLAYER_TIMEOUT]: {
+
+    },
     // [EProtocolID.HOLDEM_PLAYER_OPERATE]: {encoder: protocol.texas_holdem.PlayerOperationReq},
     // [EProtocolID.HOLDEM_PLAYER_SHOW_HOLE]: {
     //     encoder: protocol.texas_holdem.PlayerHoleCards,
@@ -635,10 +662,16 @@ const _configs: { [id in EProtocolID]: IProtocolConfig } = {
     //     encoder: protocol.texas_holdem.PlayerBuyChip,
     //     decoder: protocol.texas_holdem.PlayerBuyChip
     // },
-    [EProtocolID.HOLDEM_GAME_DEAL_HOLE]: {},
+    [EProtocolID.HOLDEM_GAME_DEAL_HOLE]: {
+
+    },
     // [EProtocolID.HOLDEM_GAME_ROUND_END]: {decoder: protocol.texas_holdem.GameRoundEnd},
     // [EProtocolID.HOLDEM_GAME_ID]: {encoder: protocol.texas_holdem.GameIDReq, decoder: protocol.texas_holdem.GameID},
-    [EProtocolID.VIP_GET_STATUS]: {encoder: protocol.vip.pbType, decoder: protocol.vip.VipStatus, httpAPI: 'vip'},
+    [EProtocolID.VIP_GET_STATUS]: {
+        encoder: protocol.vip.pbType, 
+        decoder: protocol.vip.VipStatus, 
+        httpAPI: 'vip'
+    },
     [EProtocolID.VIP_GET_UPGRADE_PACKET]: {
         encoder: protocol.vip.upgradePacketReq,
         decoder: protocol.vip.upgradePacketResp,

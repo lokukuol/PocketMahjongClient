@@ -143,7 +143,7 @@ export namespace ProtocolHTTPManager {
 
     export function setDefaultUrl() {
         // qipaiplay-maj
-        _serverURL = AppVar.isRelease ? 'http://mhonline.openpokergame.net:8086' : 'http://mhtest.openpokergame.net:8086';
+        _serverURL = AppVar.isRelease ? 'http://localhost:8000' : 'http://localhost:8000';
         console.log("serverURL:", _serverURL);
     }
 
@@ -210,12 +210,12 @@ export namespace ProtocolHTTPManager {
      * @param timeout 允许超时时长（默认 5 秒）
      * @returns
      */
-    export function load<T extends EProtocolID>(protocolID: T, data: IProtocolData[T]['req'], authRequired: boolean = true, timeout: number = 5000): boolean {
+    export function  load<T extends EProtocolID>(protocolID: T, data: any, authRequired: boolean = true, timeout: number = 5000): boolean {
         if (!_serverURL) {
-            /* 服务器地址无效 */
+            /* 服务器地址无效 */  
             console.error(`[HTTP-PROTOCOL] load error: server url not found`);
             return false;
-        }
+        }  
 
         let token: string | null = null;
         if (authRequired && !(token = getHTTPToken())) {
@@ -236,6 +236,7 @@ export namespace ProtocolHTTPManager {
             EventManager.emit('protocolWillRequest', {protocolID: protocolID});
         });
         request.addEventListener('loadend', () => {
+            console.log("xxxxxxxxxxxxxxxxx")
             let response: ProtocolPacker.IProtocolResponse | null = null;
             if (request.status === 200) {
                 response = ProtocolPacker.unpack(request.response);
@@ -272,7 +273,9 @@ export namespace ProtocolHTTPManager {
         request.timeout = timeout;
         if (authRequired) {
             request.setRequestHeader('x-token-content', token!);
+            
         }
+        request.setRequestHeader('Content-Type','application/octet-stream');
         console.log(`[HTTP-PROTOCOL] [${protocolID}] send:`);
         if (data) {
             if (sys.isBrowser) {

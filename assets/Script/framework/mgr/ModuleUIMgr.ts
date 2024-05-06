@@ -47,7 +47,7 @@ export class ModuleUIMgr {
         }
     }
 
-
+ 
     public showUi(mUiPrefName: string, mUiScript: string = null) {
         console.log("showPopup:", mUiPrefName);
         this.root.active = true;

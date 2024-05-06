@@ -89,6 +89,7 @@ export class Main extends Component {
         let root = this.nodePicker.getChildNode("Canvas");
         // game.addPersistRootNode(root);
         let UiModuleWin = root.getChildByPath("loginND");
+      
         App.getInst(ViewMgr).addLayer(eLayer.uiModuleLayer, UiModuleWin);
         App.getInst(ToastUI).toInit(root);
     }

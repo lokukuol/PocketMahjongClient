@@ -133,14 +133,15 @@ export class SceneMgr {
     }
 
     public static loadPrefabRes(): void {
-        console.time('loadPrefabRes');
-        resources.loadDir("prefab", Prefab, (err, data) => {
-            console.log(new Date().toLocaleString(), "【加载prefab资源】");
-            PrefabCache.init();
-            PrefabCache.mapPrefab(data);
-            this._loadAudioRes();
-        });
-        console.timeEnd('loadPrefabRes');
+        // console.time('loadPrefabRes');
+        // resources.loadDir("prefab", Prefab, (err, data) => {
+        //     console.log(new Date().toLocaleString(), "【加载prefab资源】");
+        //     PrefabCache.init();
+        //     console.log(data)
+        //     PrefabCache.mapPrefab(data);
+        //     this._loadAudioRes();
+        // });
+        // console.timeEnd('loadPrefabRes');
     }
 
     private static _loadAudioRes(): void {

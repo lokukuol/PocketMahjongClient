@@ -103,12 +103,12 @@ export class LoginLogic extends Component {
             device.fetchDeviceID(deviceID => {
                 if (deviceID == undefined || deviceID == null) {
                     return;
-                }
+                } 
                 let mParamObj = {
                     type: 0,
                     id: deviceID,
                     password: ""
-                };
+                }; 
                 ProtocolHTTPManager.load(EProtocolID.ACCOUNT_TOKEN, mParamObj, false);
                 console.log("发送请求 游客登陆");
             });

@@ -45,7 +45,7 @@ import {RoleCtrl} from './role/RoleCtrl';
 /**
  * 游戏流程的都在这里处理，方便日后做重连，强更时查看登录流程
  */
-export class GameEntrance extends Singleton {
+export class     GameEntrance extends Singleton {
     /**版本对比完毕 */
     static VER_COMPARE_COMPLETED: string = `VER_COMPARE_COMPLETED`;
     public main: Main;
@@ -53,17 +53,17 @@ export class GameEntrance extends Singleton {
 
     public run(main): void {
         this.main = main;
-        this.eventWaiter = new EventWaiter();
+        this.eventWaiter = new EventWaiter();        
         // this.eventWaiter.onEvent(GameEntrance.VER_COMPARE_COMPLETED, this.onVerCompareCompleted, this);
+        this.showLogin();
+    } 
+
+    private onVerCompareCompleted(): void {  
         this.showLogin();
     }
 
-    // private onVerCompareCompleted(): void {
-    //     this.showLogin();
-    // }
-
     public showLogin() {
-        SceneMgr.runScene("Login", false, null, this);
+        SceneMgr.runScene("Login", false, null, this);  
     }
 
     public showHome(): void {

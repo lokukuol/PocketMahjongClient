@@ -34,14 +34,14 @@ import {Node} from "cc";
 import {eLayer, eSysId, ViewMgr} from "../../framework/mgr/ViewMgr";
 import {Singleton} from "../../framework/mgr/Singleton";
 import {App} from "../../Module/App";
-
+ 
 export class ToastUI extends Singleton {
     protected static instance: ToastUI
     public root: Node = null;
 
     public toInit(node: Node) {
         this.root = node;
-    }
+    } 
 
     public showTips(mTips: string) {
         let mgr = App.getInst(ViewMgr);

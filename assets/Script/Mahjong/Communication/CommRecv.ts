@@ -120,7 +120,7 @@ export class CommRecv {
             case 0x2308:
                 this.reconnect(packet.body);
                 break;
-        }
+        } 
         if (GlobalVar.loadGameOver) {
             this.OnProcessGamePacket(packet);
         }
